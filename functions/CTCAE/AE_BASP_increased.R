@@ -1,0 +1,41 @@
+AE_BASP_increased = function(data,
+                             c_value = c_value, 
+                             analysiscode = analysiscode,
+                             referenceinterval_upperlimit = referenceinterval_upperlimit,
+                             date_sample = samplingdate){
+  #' @title
+  #' AE_BASP_increased
+  #' @author
+  #' christian brieghel
+  #' @description
+  #' Calculates alkaline phosphatase (ALP [eng] or BASP [dan]) values to define AE BASP increased (MedDRA 10001675)
+  #' @examples
+  #' load_dataset('all_laboratory_measurements', sample(all_patients$patientid, 2000))
+  #' AE_data = all_laboratory_measurements_subset %>% AE_BASP_increased()
+  #' @references 
+  #' CTCAEv5 November 27, 2017 downloaded at NIH/NCI https://ctep.cancer.gov/protocoldevelopment/electronic_applications/ctc.htm
+  
+  if(!exists('NPU.BASP')){load_npu_common()}
+  data %>% 
+    filter({{analysiscode}} %in% NPU.BASP,
+           !is.na({{c_value}})) %>% 
+    mutate(value_numeric = as.numeric({{c_value}}),
+           ULN = as.numeric({{referenceinterval_upperlimit}}),
+           ULN = ifelse(is.na(ULN), 105, ULN)) %>% 
+    group_by(patientid) %>%
+    arrange(patientid, {{date_sample}}) %>%
+    mutate(value_baseline_mean = lag(cummean(value_numeric))) %>% 
+    ungroup() %>% 
+    mutate(BL_status = ifelse(value_baseline_mean <= ULN | is.na(value_baseline_mean), 'normal', 'abnormal')) %>% 
+    mutate(ae_BASP_increased = ifelse(BL_status=='normal' & value_numeric <= ULN, '0', NA),
+           ae_BASP_increased = ifelse(BL_status=='normal' & value_numeric > ULN, '1', ae_BASP_increased),
+           ae_BASP_increased = ifelse(BL_status=='normal' & value_numeric > ULN*2.5, '2', ae_BASP_increased),
+           ae_BASP_increased = ifelse(BL_status=='normal' & value_numeric > ULN*5, '3', ae_BASP_increased),
+           ae_BASP_increased = ifelse(BL_status=='normal' & value_numeric > ULN*20, '4', ae_BASP_increased)) %>% 
+    mutate(ae_BASP_increased = ifelse(BL_status=='abnormal' & value_numeric <= value_baseline_mean*2, '0', ae_BASP_increased),
+           ae_BASP_increased = ifelse(BL_status=='abnormal' & value_numeric > value_baseline_mean*2, '1', ae_BASP_increased),
+           ae_BASP_increased = ifelse(BL_status=='abnormal' & value_numeric > value_baseline_mean*2.5, '2', ae_BASP_increased),
+           ae_BASP_increased = ifelse(BL_status=='abnormal' & value_numeric > value_baseline_mean*5, '3', ae_BASP_increased),
+           ae_BASP_increased = ifelse(BL_status=='abnormal' & value_numeric > value_baseline_mean*20, '4', ae_BASP_increased)) %>% 
+    mutate(ae_BASP_increased = factor(ae_BASP_increased, c('0', '1', '2', '3', '4'))) 
+}
