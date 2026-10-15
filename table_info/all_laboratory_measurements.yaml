@@ -1,0 +1,50 @@
+name: all_laboratory_measurements
+status: RELEASED
+former_name: laboratorymeasurements
+purpose: >-
+  Every laboratory result from SDS and SP, combined into one table. SP
+  contributes only the results not already present in SDS (matched on patient,
+  date, time, code and raw value together), so the same result reported by both
+  sources is not duplicated. Carries both the raw result exactly as delivered
+  and a cleaned numeric value alongside it.
+sources:
+  - SDS laboratorieproevesvar
+  - SP AlleProvesvar
+one_row: >-
+  One laboratory result, for one patient, at one sampling date/time, for one
+  analysis code. Long format: a patient with 200 lab results across their
+  history appears in 200 rows.
+columns:
+  patientid: ""
+  samplingdate: ""
+  samplingtime: ""
+  analysiscode: ""
+  laboratorium_idcode: ""
+  value: "raw result exactly as delivered, never overwritten"
+  operator_raw: "SDS Operator code as delivered (mindre_end / stoerre_end)"
+  c_value: "cleaned numeric value; NA for strictly textual results"
+  c_operator: "<, >, <= or >= when the result carries a comparison operator; c_value holds the number"
+  c_value_text: "standardized text for strictly textual results (e.g. negative, positive); c_value is NA"
+  unit: ""
+  c_unit: ""
+  resulttype: ""
+  referenceinterval_lowerlimit: ""
+  referenceinterval_upperlimit: ""
+  rekvirent_id: ""
+  rekvirent_idtype: ""
+  analysisgroup: ""
+  analysisgroup_new: ""
+  source: "SDS or SP; SP rows are by construction only those not already in SDS"
+cleaning:
+  - "value is the raw result and is never overwritten; cleaned results go into c_value, c_operator and c_value_text."
+  - "Numeric with comparison operator (e.g. <0.5, >=5): operator goes to c_operator, the number to c_value (the number is kept, not set to NA). SDS uses its structured Operator column (mindre_end -> <, stoerre_end -> >). SP has no such column, so the operator is parsed from the text prefix. Rows containing KOMM are excluded from this parsing."
+  - "Plain numeric (Danish comma or period decimal): goes to c_value; c_operator is empty."
+  - "Strictly textual results (e.g. negativ, positiv, ikke paavist): c_value is NA and the standardized text goes to c_value_text (negativ -> negative, positiv -> positive)."
+  - "Placeholders without information (-, --, ?, %, +++): the row is dropped; the number of dropped rows is logged on each run."
+  - "Unit conversion to a common unit in c_unit is only done for ALB, IGG, IGA, IGM, AFP and TNI. For other analysis groups units are only harmonized as text (case/notation variants)."
+  - "analysisgroup comes from the NPU lookup CODES_NPU2PERSIMUNE. Coverage is incomplete."
+caveats:
+  - "SP results exist only for patients seen in SP, and an SP row is only kept when SDS does not already have it. Result coverage therefore differs between patients and over time, and SP patients are overrepresented. For analyses of the whole cohort, do not assume the same laboratory coverage for every patient; check how many patients have SP data (see patient_data_overview, column SP). For studies across regions, use SDS_laboratorieproevesvar instead; its coverage is not uniform across regions either, but it is the best available."
+  - About 90% of SP rows have no matching SDS row. The likely cause is that SP does not report all results to SDS.
+  - "A few high-volume text values (Gruppesvar, bare Paavist, Erstattet, Aflyst, Gruppe, KOMM) are not mapped, so c_value and c_value_text are both NA for them; the raw value is kept."
+  - "SDS_laboratorieproevesvar has full coverage from around 2015."

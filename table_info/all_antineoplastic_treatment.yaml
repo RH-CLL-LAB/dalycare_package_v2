@@ -1,0 +1,39 @@
+name: all_antineoplastic_treatment
+status: PLANNED
+former_name: antineoplastic_treatment
+purpose: >-
+  Cancer-directed treatment history: chemotherapy, immunotherapy, targeted
+  therapy, stem-cell transplant/support - across sources.
+sources:
+  - "SDS: epikur, ekokur, indberetningmedpris, LPR1+3"
+  - "SP: AdministreretMedicin, OrdineretMedicin, Behandlingsplaner_del1, Behandlingsplaner_del2"
+  - "SUNDK: CLL, DaMyDa, LYFO"
+one_row: >-
+  One treatment per patient per date per source. Long format: a patient with a
+  6-month chemo regimen appears in one row per administered treatment date.
+columns:
+  patientid: ""
+  tx_text: ""
+  tx_code: ""
+  tx_code_type: ""
+  date_start: ""
+  date_end: ""
+  region: ""
+  hospital: ""
+  source: ""
+  dx_text: ""
+  dx_code: ""
+  dx_code_type: ""
+  source_id: ""
+  n_cycles: ""
+  clinical_trial: ""
+  line_source: ""
+  tx_text_long: ""
+  code_icd10: ""
+  dx_text_eng: ""
+caveats:
+  - "The coverage period differs between the sources (SDS, SP, SUNDK), so do not assume the same period for all of them."
+  - "Data from SUNDK has a single date for the whole line, meaning that you cannot be sure the individual drugs were given on that date."
+  - "To identify specific drugs, use the drug name in tx_text. Currently it is not possible to rely solely on ATC codes, as LPR uses SKS codes and SUNDK uses no codes."
+  - "Use data from source SP beh (treatment plans from SP) carefully. The name of the treatment plan is used to generate tx_text, and physicians can (and do) change what a patient is actually given without changing the name. It is best suited for brand new treatments that have not yet been assigned an ATC code."
+  - "The diagnosis columns should be used carefully. They do not always make sense, and a drug can easily be given for another condition than what is listed."

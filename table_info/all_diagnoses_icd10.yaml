@@ -1,0 +1,28 @@
+name: all_diagnoses_icd10
+status: RELEASED
+former_name: diagnoses_all
+purpose: >-
+  Full ICD-10 diagnosis history, but ONLY from sources whose code is native
+  ICD-10 as delivered (no lookup-table translation). Not restricted to
+  approved DALYCARE diagnoses; includes every available diagnosis code a
+  patient has ever had in these sources, including dates before 2002 and codes
+  outside the approved list. Useful for creating Charlson morbidity scores and
+  to create outcome measurements (e.g. AFIB as an outcome).
+sources:
+  - "SDS: kontakter, diagnoser, t_diag, t_adm, tumor_aarlig, doedsaarsag_3, t_dodsaarsag_2, t_psyk"
+  - "SP: BehandlingskontakterOgDiagnoser, ADT_haendelser"
+  - "SUNDK: CLL (fixed code for all in the registry)"
+  - "EXCLUDED: SDS Pato, SUNDK_LYFO, SUNDK_DaMyDa, as their codes are SNOMED/histology codes"
+one_row: >-
+  One diagnosis code, for one patient, on one date, from one source table.
+  Long format: a patient with 40 diagnosis codes across their history appears
+  in 40 rows.
+columns:
+  patientid: ""
+  date_diagnosis: ""
+  diagnosis: ""
+  tablename: ""
+  datasource: ""
+caveats:
+  - "The coverage period differs between the sources (SDS, SP, SUNDK), so do not assume the same period for all of them."
+  - "Suffix letters are missing from t_tumor_aarlig, meaning that e.g. DC830B (lymphoplasmacytic lymphoma) turns into DC830 (small lymphocytic lymphoma)."
