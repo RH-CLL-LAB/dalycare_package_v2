@@ -27,7 +27,7 @@ cat('==========================================================\n')
 cat('1. Loader hele pakken (load_dalycare_package.R)\n')
 cat('==========================================================\n')
 
-check('source(load_dalycare_package.R) + use_version(development), {
+check('source(load_dalycare_package.R) + use_version(development)', {
   source('/ngc/projects2/dalyca_r/data/dalycare_r_package/load_dalycare_package.R')
   use_version(VERSION)
   exists('load_dataset')
