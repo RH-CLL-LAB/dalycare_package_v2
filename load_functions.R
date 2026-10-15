@@ -60,7 +60,7 @@ source(file.path(PKG_HOME, 'functions/helpers.R'))
 source(file.path(PKG_HOME, 'functions/table_docs.R')) # table_info() -- documentation for core curated tables
 
 print_color('\nLoading look-up tables...', 'black')
-load_dataset(c('Codes_ATC', 'Codes_NPU', 'Codes_DST_DIAG_CODES', 'CODES_SNOMED', 'Codes_SKS', 'Codes_SHAK_long'), quiet = TRUE)
+load_dataset(c('Codes_ATC', 'Codes_NPU', 'Codes_DST_DIAG_CODES', 'CODES_SNOMED', 'Codes_SKS', 'Codes_SHAK_long', 'Codes_sor'), quiet = TRUE)
 
 #### lookup_tables
 Codes_NPU = Codes_NPU %>% 
