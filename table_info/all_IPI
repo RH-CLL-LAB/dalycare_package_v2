@@ -1,0 +1,31 @@
+name: all_IPI
+status: PLANNED
+former_name: IPI
+purpose: >-
+  Calculated international prognostic indices (IPI) and scores (IPS) for
+  patients in SUNDK, supplemented with laboratory measurements from
+  all_laboratory_measurements (e.g. LDH, IgM) where the value is NA in SUNDK.
+  Scores: International Prognostic Score (IPS) for cHL (both early and advanced
+  stage); Revised IPI (R-IPI) for DLBCL; FLIPI2 for FL; mucosa-associated
+  lymphoid tissue lymphoma IPI (MALT-IPI) for MZL; MIPI for MCL; CLL-IPI for
+  CLL; IPS system for Waldenstrom macroglobulinemia (IPSSWM) for LPL (including
+  WM); and R-ISS for MM (including patients with smoldering MM). See the
+  documentation and references for each score in the specific IPI function,
+  e.g. ?CLL_IPI().
+sources:
+  - "SUNDK: CLL, DaMyDa, LYFO"
+  - "all_laboratory_measurements (supplement)"
+one_row: >-
+  One IPI score for one patient and one disease. Long format: a patient with 2
+  diseases (e.g. MM + CLL) appears in two rows. Join by c("patientid",
+  "disease") to avoid duplicates.
+columns:
+  patientid: ""
+  IPI: ""
+  disease: ""
+open_questions:
+  - "Which score is used for DLBCL? The R package does not calculate R-IPI: clean_SUNDK_LYFO.R groups the registry's own IPI score into 0, 1-2 and 3+, labelled Low/Intermediate/High (not R-IPI's Very good/Good/Poor). NCCN-IPI exists in NCCN_IPI.R, for DLBCL only. The choice between them needs a documented decision, and the purpose above should then be corrected."
+  - "Should scores based on missing or supplemented inputs be flagged, e.g. with an extra column?"
+caveats:
+  - "Scores are not imputed: with a missing input the score is NA (rowSums without na.rm). The registry's own IPI is used as a finished value, so it cannot be seen whether it was based on missing or supplemented data. The table has no marker for this."
+  - "Laboratory values taken from all_laboratory_measurements to fill NA in SUNDK may include up to 30 days of immortality bias."
