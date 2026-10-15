@@ -21,6 +21,10 @@ suppressPackageStartupMessages({
   library(data.table)
 })
 
+# arrow: keep pull() on Arrow data returning an R vector (current behaviour).
+# Without this, arrow warns that the default will change to a ChunkedArray.
+options(arrow.pull_as_vector = TRUE)
+
 # Attach plotting/survival/misc dependencies used unqualified (no `pkg::`
 # prefix) inside several package functions -- e.g. KM_plot()/KM_plot_3()/
 # tile_pairwise_survdiff()/pairwise_k_sample() call survminer::ggsurvplot()
