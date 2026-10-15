@@ -1,0 +1,30 @@
+name: all_pathology
+status: RELEASED
+former_name: ""
+purpose: >-
+  Pathology diagnoses from SDS, built by clean_SDS_pato() from
+  SDS_fctrekvisition (patient and requisition date) joined to
+  SDS_dimpatologiskdiagnose (SNOMED diagnosis code) on dw_ek_rekvisition. The
+  codes are SNOMED/histology codes, not ICD-10 (translation to follow). sor and
+  shak codes from the biopsy ordering department/clinic are translated using
+  Codes_shak and Codes_sor. SNOMED codes are translated using Codes_SNOMED.
+  material_type is specified from the topographical SNOMED code with each
+  material_number (i.e. SNOMED codes starting with "T"; e.g. bone marrow).
+sources:
+  - "SDS: fctrekvisition, dimpatologiskdiagnose"
+one_row: >-
+  One SNOMED diagnosis code, for one patient, on one requisition date. Long
+  format: a requisition with several SNOMED codes gives several rows.
+columns:
+  patientid: ""
+  date_biopsy: "requisition date (dato_rekvirering from fctrekvisition), which specifies the date of biopsy"
+  snomed: "SNOMED diagnosis code (diagnose_snomed_kode from dimpatologiskdiagnose)"
+  text: "SNOMED codes translated into pathology diagnosis (e.g. \"myelomatose\")"
+  material_number: "Each patient may have multiple biopsies performed for each requisition (e.g. colon and caecum biopsies in one colonoscopy; peripheral blood and bone marrow). material_number identifies each biopsy from materialenummer"
+  snomed_number: "Each biopsy may be associated with multiple SNOMED codes (e.g. 1. bone marrow with 2. CLL and 3. TP53 mutated). snomed_number identifies each SNOMED pathology code from diagnose_snomed_sekvensnummer"
+cleaning:
+  - "The join between fctrekvisition and dimpatologiskdiagnose is on dw_ek_rekvisition (many-to-many). It replaces the old k_rekvnr key and the old SDS_pato table."
+caveats:
+  - "The date is the requisition (biopsy) date, not the date the pathology diagnosis was made."
+  - "Free-text pathology notes (v_fritekst, formerly SDS_t_mikro_ny) are no longer delivered by pato and are not part of this table (since 2025)."
+open_questions:

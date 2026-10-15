@@ -1,0 +1,36 @@
+name: all_comorbidity_and_ae
+status: PLANNED
+former_name: comorbidity_and_ae
+purpose: >-
+  Comorbidities and adverse events, covering CTCAE-graded adverse events,
+  hypertension, type 2 diabetes, infections, IVAB (intravenous antibiotics) and
+  AKI (acute kidney injury).
+sources:
+  - SDS_epikur/ekokur
+  - "SP_AdministreretMedicin/OrdineretMedicin (hypertension, T2D, IVAB - by ATC code)"
+  - all_laboratory_measurements (CTCAE, AKI)
+  - "SDS diagnoses (T2D, ICD-10 DE11)"
+one_row: >-
+  One comorbidity/adverse-event episode for one patient, tagged by event_type:
+  each of the 6 sub-calculations (CTCAE-graded lab AE, AKI, hypertension, T2D,
+  infection IVAB, infection 4-grade) contributes rows in the same shape.
+open_questions:
+  - "Suggestion from Emelie: should the table also include CLL-CI, CCI and MACE (MACE as recently defined by Noomi for her glycemic control study)? If so, CLL-CI and MACE use procedure codes (SKS), which must then be added as a source."
+  - "Some CTCAE grades can be calculated from laboratory measurements alone, but others need an index date (e.g. a baseline for relative changes). Consider calculating these from the index date in a first-line treatment table, once such a table exists."
+  - "T2D definition: the R package has no prescription-based definition. The only T2D code is ICD-10 ^DE11 in NMI.R (diagnosis code) and the E11x codes in CCI; neither uses prescriptions or excludes GLP-1 drugs. Noomi's code (prescription criteria, GLP-1 drugs excluded) is to be obtained and aligned. Currently specified here as ATC A10 (SDS_epikur/ekokur, SP medicine) plus ICD-10 DE11 (SDS diagnoses)."
+  - "Code matching to check in the R package: NMI.R may match only a patient's first code (^ anchors the start of the combined string), CCI_v2.R matches substrings anywhere (no ^)."
+  - "Table not yet built or run."
+columns:
+  patientid: ""
+  event_id: ""
+  start_date: ""
+  end_date: ""
+  duration_days: ""
+  event_value: ""
+  max_value: ""
+  event_type: ""
+cleaning:
+  - "CTCAE-graded adverse events use CTCAE version 5, as cited in the comments of the AE_* functions (the version is not set as a constant in the code; only the hyperkalaemia thresholds have been spot-checked against v5). Version 6 is not included."
+  - "ICD-10 and ATC codes are matched by prefix with regular expressions in the R functions, not by exact match."
+caveats:
+  - "The coverage period differs between the sources (SDS, SP), so do not assume the same period for all of them."

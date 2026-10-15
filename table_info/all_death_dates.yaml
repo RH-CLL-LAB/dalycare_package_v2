@@ -1,0 +1,25 @@
+name: all_death_dates
+status: RELEASED
+former_name: ""
+purpose: >-
+  A cross-source death-date comparison table to supplement all_patients, which
+  is SDS-only in vital status and date_death_fu. Shows the death date from each
+  source (SUNDK/SP/SDS) side by side. Useful for studies performed in SP.
+sources:
+  - "SDS: doedsaarsag_3, t_dodsaarsag_2"
+  - "SUNDK: CPR_Doedsdato (CLL/LYFO/DaMyDa)"
+  - "SP: ADT_haendelser (death_date column)"
+one_row: >-
+  One patient. Wide format: one death-date column per source, side by side, so
+  death dates across sources can be compared directly for the same patient.
+columns:
+  patientid: ""
+  SDS_t_dodsaarsag_2: ""
+  SDS_doedsaarsag_3: ""
+  SP_OS: ""
+  LYFO: ""
+  DaMyDa: ""
+  CLL: ""
+caveats:
+  - "The coverage period differs between the sources (SDS, SP, SUNDK), so do not assume the same period for all of them."
+  - Some patients have data registered after death or end of follow-up.

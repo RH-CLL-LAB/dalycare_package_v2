@@ -1,0 +1,23 @@
+name: all_dalycare_diagnoses
+status: RELEASED
+former_name: t_dalycare_diagnoses
+purpose: >-
+  The cohort-defining table. Every diagnosis source is translated to ICD-10
+  (native codes normalized, SNOMED/histology codes mapped via a lookup table)
+  and filtered to the approved DALYCARE diagnosis list.
+sources:
+  - "SDS: kontakter, diagnoser, t_diag, t_adm, tumor_aarlig, doedsaarsag_3, t_dodsaarsag_2, t_psyk_diag, dimpatologiskdiagnose (translated)"
+  - "SP: BehandlingskontakterOgDiagnoser, ADT_haendelser"
+  - "SUNDK: CLL, DaMyDa (translated), LYFO (translated from SNOMED)"
+one_row: >-
+  One approved diagnosis code, for one patient, on one date, from one source
+  table. Long format: a patient with 40 approved diagnoses appears in 40 rows.
+columns:
+  patientid: ""
+  date_diagnosis: ""
+  diagnosis: ""
+  tablename: ""
+  datasource: ""
+caveats:
+  - "The coverage period differs between the sources (SDS, SP, SUNDK), so do not assume the same period for all of them."
+  - "Suffix letters are missing from t_tumor_aarlig, meaning that e.g. DC830B (lymphoplasmacytic lymphoma) turns into DC830 (small lymphocytic lymphoma)."

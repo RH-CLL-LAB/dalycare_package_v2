@@ -1,0 +1,24 @@
+name: all_patients
+status: RELEASED
+former_name: patient
+purpose: >-
+  All patients collected across SDS, SP, SUNDK. Restricted to patients in the
+  DALYCARE cohort: >=1 approved dalycare diagnosis, aged >=18 at diagnosis
+  (except pathology-derived diagnoses where the patient's current age just
+  needs to be 18), and not opted out of research (tissue register). Enriched
+  with vital status and death/follow-up date based on SDS data only.
+sources:
+  - SDS
+  - SP
+  - SUNDK
+one_row: >-
+  One patient. Wide format: each patient appears exactly once, with all
+  attributes (sex, vital status, dates) as columns on that single row.
+columns:
+  patientid: ""
+  sex: ""
+  status: "1=dead, 0=alive, NA=unknown"
+  date_birth: ""
+  date_death_fu: "death date if dead, shared SDS follow-up date if alive"
+caveats:
+  - "The coverage period differs between the sources (SDS, SP, SUNDK), so do not assume the same period for all of them."

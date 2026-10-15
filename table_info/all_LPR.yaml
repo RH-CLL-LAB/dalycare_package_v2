@@ -1,0 +1,13 @@
+name: all_LPR
+status: PLANNED
+former_name: ""
+purpose: >-
+  LPR2 and LPR3 merged into one table, taking into account the transition in
+  February 2019 and the risk of overlapping data between the two.
+sources:
+  - LPR2
+  - LPR3
+one_row: ""
+columns: {}
+open_questions:
+  - "How to handle the overlap around the February 2019 transition between LPR2 and LPR3."

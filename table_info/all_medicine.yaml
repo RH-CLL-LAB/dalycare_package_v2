@@ -1,0 +1,35 @@
+name: all_medicine
+status: PLANNED
+former_name: adm_medicine
+purpose: >-
+  Combined medicine history: all available ATC codes from SMR, LSR,
+  SP_administreret and SP_ordineret (administered and prescribed medicine). The
+  source column shows which register and table each row comes from, so it is
+  visible how the table was made, and e.g. prescription-based infections can be
+  identified separately from SMR+SP-based ones.
+sources:
+  - SMR
+  - LSR
+  - SP_administreret (AdministreretMedicin)
+  - SP_ordineret (OrdineretMedicin)
+one_row: >-
+  One medicine record for one patient, on one date, for one ATC code. Long
+  format.
+columns:
+  patientid: ""
+  date_medication: ""
+  date_time_medication: "time of day; only present together with a date"
+  ATC: ""
+  text: "name of the preparation, e.g. Panodil"
+  dose: "dose/value, or label on the prescription, e.g. 1000 mg x 2 daily"
+  route: "administration route"
+  source: "data source of the row: register and table (SMR, LSR, SP_administreret, SP_ordineret)"
+caveats:
+  - "SP sources add medicine records only for patients seen in SP, so SP patients are overrepresented. For studies across regions, use the SDS sources (SMR, LSR) alone; their coverage is not uniform across regions either, but it is the best available."
+  - "The coverage period differs between the sources (SMR, LSR, SP), so do not assume the same period for all of them."
+  - "LPR is not included. LPR has treatment codes (starting with B), not ATC codes. SDS medicine codes starting with M could be M + ATC code, but it is unverified whether LPR contains any M codes."
+open_questions:
+  - "Which SDS tables make up SMR and LSR (indberetningmedpris, laegemiddeloplysninger, epikur, ekokur)?"
+  - "Do epikur and ekokur overlap?"
+  - "Deduplication across sources where they overlap."
+  - "route: can NA be replaced when the row comes from the prescription register?"

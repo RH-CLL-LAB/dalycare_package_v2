@@ -1,0 +1,25 @@
+name: patient_data_overview
+status: RELEASED
+former_name: ""
+purpose: >-
+  A patient x data-source coverage matrix (1 = patient appears in at least one
+  row of that cleaned table), and a date_death_fu_all_sources containing the
+  latest delivery date among sources the patient appears in, capped at death
+  date for the dead.
+sources:
+  - SP
+  - SUNDK
+  - SDS
+one_row: >-
+  One patient. Wide format: one 1/0 column per source table, so coverage
+  across sources can be read off a single row per patient.
+columns:
+  patientid: ""
+  SDS: ""
+  SP: ""
+  LYFO: ""
+  DaMyDa: ""
+  CLL: ""
+  date_death_fu_all_sources: ""
+caveats:
+  - "The coverage period differs between the sources (SDS, SP, SUNDK), so do not assume the same period for all of them."
