@@ -10,7 +10,7 @@ clean_SDS_pato = function(data){
   #' @references
   #' Github
 
-  reqs = SDS_fctrekvisition$dw_ek_rekvisition %>% unique
+  reqs = data$dw_ek_rekvisition %>% unique
   load_dataset('SDS_dimpatologiskdiagnose', reqs, 'dw_ek_rekvisition')
 
   data %>%
