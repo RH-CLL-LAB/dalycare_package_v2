@@ -2,8 +2,7 @@
 # Builds the all_IPI table for CORE, see docs/all_IPI.md
 # Originally IPI_eop_2026.R, updated "2026-10-08"
 #
-# The logic lives in build_all_IPI(), which only takes data in and returns the table:
-# no paths, no loading and no writing. The code at the bottom loads the data and writes
+# The logic lives in build_all_IPI(). The code at the bottom loads the data and writes
 # the csv when this script is run directly. A pipeline can instead set
 # options(dalycare.define_only = TRUE), source this file and call build_all_IPI() itself.
 
@@ -20,6 +19,7 @@ build_all_IPI = function(SUNDK_CLL, SUNDK_DaMyDa, SUNDK_LYFO, all_patients, IGHV
 
   #### SUNDK IPI ####
   ALL_SUNDK = c(SUNDK_CLL$patientid, SUNDK_DaMyDa$patientid, SUNDK_LYFO$patientid) %>% unique()
+  # ALL_SUNDK %>% n_distinct()
 
   load_snomed_molecular()
   pato_clean = SDS_fctrekvisition_subset %>% 
@@ -64,6 +64,10 @@ build_all_IPI = function(SUNDK_CLL, SUNDK_DaMyDa, SUNDK_LYFO, all_patients, IGHV
     lab_helper(lab_name = 'LDH')
 
   #### CLL ####
+  # SUNDK_CLL$CPR_Doedsdato %>% summary # Use this! 
+  # SUNDK_CLL$FU_Doedsdato %>% summary 
+  # all_patients %>% nrow_npatients()
+  # LAB_IGHVIMGT$ighv
   SUNDK_CLL_clean = SUNDK_CLL %>% 
     clean_SUNDK_CLL() %>% 
     left_join(all_patients %>% select(-sex, -date_birth, -date_death_fu), 'patientid') %>%
@@ -95,6 +99,10 @@ build_all_IPI = function(SUNDK_CLL, SUNDK_DaMyDa, SUNDK_LYFO, all_patients, IGHV
            CLL_IPI = factor(CLL_IPI, levels = c('Low', 'Intermediate', 'High', 'Very high'))) %>% 
     mutate(year = year(date_diagnosis))
 
+  # SUNDK_CLL_clean %>% select(patientid, IGHV_new, IGHV, IGHVIMGT, snomed) %>% 
+  #   arrange(IGHV_new, IGHV, IGHVIMGT, snomed) %>% View
+  # SUNDK_CLL_clean$CLL_IPI %>% table(exclude = NULL)
+
   #### DAMYDA ####
   SUNDK_DaMyDa_clean = SUNDK_DaMyDa %>% 
     clean_SUNDK_DAMYDA() %>% 
@@ -125,6 +133,9 @@ build_all_IPI = function(SUNDK_CLL, SUNDK_DaMyDa, SUNDK_LYFO, all_patients, IGHV
            RISS = ifelse(ISS == 1 & RISS_Addon == "Yes", 2, RISS),
            RISS = ifelse(ISS == 2, 2, RISS)) 
 
+  # SUNDK_DaMyDa_clean$ISS %>% table(exclude = NULL)
+  # SUNDK_DaMyDa_clean$RISS %>% table(exclude = NULL)
+
   #### LYFO ####
   SUNDK_LYFO_clean = SUNDK_LYFO %>% 
     clean_SUNDK_LYFO() %>% 
@@ -143,6 +154,8 @@ build_all_IPI = function(SUNDK_CLL, SUNDK_DaMyDa, SUNDK_LYFO, all_patients, IGHV
            ALC_diagnosis = ifelse(is.na(ALC_diagnosis), valueALC, ALC_diagnosis),
            LDH_diagnosis = ifelse(is.na(LDH_diagnosis), valueLDH, LDH_diagnosis),
            IgM_gL_diagnosis = ifelse(is.na(IgM_gL_diagnosis), valueIGM, IgM_gL_diagnosis))
+
+  # SUNDK_LYFO_clean$RIPI_diagnosis
 
   #### all_IPI ####
   all_IPI = bind_rows(SUNDK_CLL_clean %>% 
@@ -206,6 +219,9 @@ build_all_IPI = function(SUNDK_CLL, SUNDK_DaMyDa, SUNDK_LYFO, all_patients, IGHV
                                   disease = 'cHL'))  %>% 
     mutate(IPI = factor(IPI, levels =  c('Low', 'Intermediate', 'High', 'Very high'))) %>% 
     filter(!is.na(IPI))
+
+  # all_IPI %>% nrow_npatients()
+  # all_IPI$IPI %>% table(exclude = NULL)
 
   all_IPI
 }
