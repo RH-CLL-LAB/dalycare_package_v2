@@ -2,8 +2,9 @@
 # Builds the all_IPI table for CORE, see docs/all_IPI.md
 # Originally IPI_eop_2026.R, updated "2026-10-08"
 #
-# The logic lives in build_all_IPI(). The code at the bottom loads the data and writes
-# the csv when this script is run directly. A pipeline can instead set
+# The logic lives in build_all_IPI(). The code at the bottom loads the data and builds
+# all_IPI when this script is run directly. The table is not saved here: writing to
+# core/ is done by the core pipeline. A pipeline can instead set
 # options(dalycare.define_only = TRUE), source this file and call build_all_IPI() itself.
 
 #' @param SUNDK_CLL,SUNDK_DaMyDa,SUNDK_LYFO raw SUNDK registries (from SUNDK_DATASETS)
@@ -228,9 +229,8 @@ build_all_IPI = function(SUNDK_CLL, SUNDK_DaMyDa, SUNDK_LYFO, all_patients, IGHV
 
 #### Run ####
 if(!isTRUE(getOption('dalycare.define_only'))){
-  # Set paths before running
+  # Set the path before running
   PACKAGE_DIR = '/ngc/projects2/dalyca_r/data/dalycare_r_package'  # folder containing load_dalycare_package.R
-  CORE_DIR = '/ngc/projects2/dalyca_r/data/core'  # all_IPI.csv is written to current/ and a dated copy to old/
   source(file.path(PACKAGE_DIR, 'load_dalycare_package.R'))
   source(file.path(PACKAGE_DIR, 'clean_SDS', 'clean_SDS_pato.R'))
 
@@ -246,8 +246,4 @@ if(!isTRUE(getOption('dalycare.define_only'))){
 
   all_IPI %>% nrow_npatients()
   all_IPI$IPI %>% table(exclude = NULL)
-
-  # Same structure as the other core tables: core/current/<name> and a dated copy core/old/<name>_<YYYYMMDD>
-  write_csv2(all_IPI, file.path(CORE_DIR, 'current', 'all_IPI.csv'))
-  write_csv2(all_IPI, file.path(CORE_DIR, 'old', paste0('all_IPI_', format(Sys.Date(), '%Y%m%d'), '.csv')))
 }
