@@ -2,10 +2,10 @@
 # Builds the all_IPI table for CORE, see docs/all_IPI.md
 # Originally IPI_eop_2026.R, updated "2026-10-08"
 #
-# The logic lives in build_all_IPI(). The code at the bottom loads the data and builds
-# all_IPI when this script is run directly. The table is not saved here: writing to
-# core/ is done by the core pipeline. A pipeline can instead set
-# options(dalycare.define_only = TRUE), source this file and call build_all_IPI() itself.
+# The logic lives in build_all_IPI(), which gets the data as arguments. run_all_IPI() loads
+# the data and calls it. Nothing runs when this file is sourced; use
+#   all_IPI = run_all_IPI()
+# The table is not saved here: writing to core/ is done by the core pipeline.
 
 #' @param SUNDK_CLL,SUNDK_DaMyDa,SUNDK_LYFO raw SUNDK registries (from SUNDK_DATASETS)
 #' @param all_patients the all_patients table
@@ -14,7 +14,7 @@
 #' @param all_laboratory_measurements_subset all_laboratory_measurements filtered on analysiscode
 #'   to the NPU codes ALB, B2M, LDH, IGM, HGB, LEU and LYM
 #' @return one row per patient and disease: patientid, IPI, index, disease
-#' Needs the dalycare package (and clean_SDS_pato.R) to be loaded.
+#' Needs the dalycare package to be loaded.
 build_all_IPI = function(SUNDK_CLL, SUNDK_DaMyDa, SUNDK_LYFO, all_patients, IGHV_IMGT,
                          SDS_fctrekvisition_subset, all_laboratory_measurements_subset){
 
@@ -228,12 +228,10 @@ build_all_IPI = function(SUNDK_CLL, SUNDK_DaMyDa, SUNDK_LYFO, all_patients, IGHV
 }
 
 #### Run ####
-if(!isTRUE(getOption('dalycare.define_only'))){
-  # Set the path before running
-  PACKAGE_DIR = '/ngc/projects2/dalyca_r/data/dalycare_r_package'  # folder containing load_dalycare_package.R
-  source(file.path(PACKAGE_DIR, 'load_dalycare_package.R'))
-  source(file.path(PACKAGE_DIR, 'clean_SDS', 'clean_SDS_pato.R'))
-
+# Loads the input data and builds all_IPI. The dalycare package must be loaded first
+# (source load_dalycare_package.R). The table is not saved here: writing to core/ is
+# done by the core pipeline. Nothing runs when this file is sourced.
+run_all_IPI = function(){
   load_dataset(c(SUNDK_DATASETS, 'all_patients', 'IGHV_IMGT_20261006'))
   load_dataset('SDS_fctrekvisition', SUNDK_CLL$patientid)
   load_npu_common()
@@ -246,4 +244,5 @@ if(!isTRUE(getOption('dalycare.define_only'))){
 
   all_IPI %>% nrow_npatients()
   all_IPI$IPI %>% table(exclude = NULL)
+  all_IPI
 }

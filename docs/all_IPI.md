@@ -51,4 +51,4 @@ Scores are not imputed: a missing component gives `NA` and the row is dropped. F
 
 ## Running the script
 
-Check `PACKAGE_DIR` at the top of the run section of `core_scripts/all_IPI.R` and run it on the server where the datasets are available. This builds `all_IPI` in your session without saving it.
+Load the package, source `core_scripts/all_IPI.R` and run `all_IPI = run_all_IPI()` on the server where the datasets are available. Sourcing the file does not build anything, and the table is not saved.
