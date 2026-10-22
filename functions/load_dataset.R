@@ -355,9 +355,9 @@ load_dataset = function(dataset = NULL, value = NULL, column = 'patientid',
     if(row$filetype == 'csv'){
       if(row$zone == 'lookup_tables'){
         data = readr::read_csv(row$path, col_types = readr::cols(.default = readr::col_character()),
-                               show_col_types = FALSE)
+                               show_col_types = FALSE, progress = FALSE)
       } else {
-        data = readr::read_csv(row$path, show_col_types = FALSE)
+        data = readr::read_csv(row$path, show_col_types = FALSE, progress = FALSE)
       }
     } else if(row$filetype == 'xlsx'){
       data = readxl::read_excel(row$path)
