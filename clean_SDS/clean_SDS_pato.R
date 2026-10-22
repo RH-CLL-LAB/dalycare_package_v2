@@ -46,9 +46,11 @@ clean_SDS_pato = function(data){
     left_join(Codes_SHAK_long %>% select(shak = kode, region, hospital, clinic), 'shak') %>%
     # sor_name: name of the ordering unit from Codes_sor (SOR-kode). The sor code is
     # converted to text without scientific notation, since it is a 15-16 digit number.
-    mutate(.sor_key = if(is.character(sor)) trimws(sor) else format(sor, scientific = FALSE, trim = TRUE)) %>%
+    # trimws() is needed: format() pads integer64 (and other numerics) to a common width,
+    # so 15-digit codes would get a leading space and never match the 16-digit ones.
+    mutate(.sor_key = trimws(if(is.character(sor)) sor else format(sor, scientific = FALSE))) %>%
     left_join(Codes_sor %>%
-                transmute(.sor_key = `SOR-kode`, sor_name = Enhedsnavn) %>%
+                transmute(.sor_key = trimws(`SOR-kode`), sor_name = Enhedsnavn) %>%
                 distinct(.sor_key, .keep_all = TRUE), '.sor_key') %>%
     select(-.sor_key) %>%
     arrange(patientid, date_biopsy, material_number) %>%
