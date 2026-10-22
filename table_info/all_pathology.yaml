@@ -7,7 +7,7 @@ purpose: >-
   SDS_dimpatologiskdiagnose (SNOMED diagnosis code) on dw_ek_rekvisition. The
   codes are SNOMED/histology codes, not ICD-10 (translation to follow). sor and
   shak codes from the biopsy ordering department/clinic are translated using
-  Codes_shak and Codes_sor. SNOMED codes are translated using Codes_SNOMED.
+  Codes_SHAK_long and Codes_sor. SNOMED codes are translated using Codes_SNOMED.
   material_type is specified from the topographical SNOMED code with each
   material_number (i.e. SNOMED codes starting with "T"; e.g. bone marrow).
 sources:
