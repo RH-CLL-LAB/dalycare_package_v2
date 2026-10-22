@@ -161,6 +161,12 @@ check('Codes_all bygges korrekt (samler alle 6 lookup-tabeller, tester lowercase
   exists('Codes_all') && nrow(Codes_all) > 0 && all(c('sks', 'atc', 'snomed', 'icd10', 'npu', 'shak') %in% Codes_all$type)
 })
 
+check('Codes_sor indlæses (komma-separeret, UTF-8, kolonner: Enhedsnavn, SOR-kode, SghAfd-kode)', {
+  load_dataset('Codes_sor')
+  exists('Codes_sor') && nrow(Codes_sor) > 50000 &&
+    all(c('Enhedsnavn', 'SOR-kode', 'SghAfd-kode') %in% names(Codes_sor))
+})
+
 cat('\n==========================================================\n')
 cat('5. load_biochemistry() / all_laboratory_measurements\n')
 cat('==========================================================\n')
