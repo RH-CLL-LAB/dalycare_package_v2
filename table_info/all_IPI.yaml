@@ -11,7 +11,7 @@ purpose: >-
   CLL; IPS system for Waldenstrom macroglobulinemia (IPSSWM) for LPL (including
   WM); and R-ISS for MM (including patients with smoldering MM). See the
   documentation and references for each score in the specific IPI function,
-  e.g. ?CLL_IPI().
+  e.g. ?CLL_IPI(). Built by core_scripts/all_IPI.R (see docs/all_IPI.md).
 sources:
   - "SUNDK: CLL, DaMyDa, LYFO"
   - "all_laboratory_measurements (supplement)"
@@ -20,11 +20,15 @@ one_row: >-
   diseases (e.g. MM + CLL) appears in two rows. Join by c("patientid",
   "disease") to avoid duplicates.
 columns:
-  patientid: ""
-  IPI: ""
-  disease: ""
+  patientid: "Patient id."
+  IPI: >-
+    Risk group as an ordered factor with levels Low, Intermediate, High, Very
+    high. Only the levels relevant for the score are used: cHL (IPS) has Low
+    and High; MM (R-ISS) has Low, Intermediate and High; CLL (CLL-IPI) has all
+    four. The score behind the group is given by disease.
+  index: "Name of the index behind IPI: CLL-IPI, R-ISS, R-IPI, FLIPI2, MIPI, IPSSWM, MALT-IPI or IPS."
+  disease: "Disease the score refers to: CLL, MM, DLBCL, FL, MCL, LPL, MZL or cHL."
 open_questions:
-  - "Which score is used for DLBCL? The R package does not calculate R-IPI: clean_SUNDK_LYFO.R groups the registry's own IPI score into 0, 1-2 and 3+, labelled Low/Intermediate/High (not R-IPI's Very good/Good/Poor). NCCN-IPI exists in NCCN_IPI.R, for DLBCL only. The choice between them needs a documented decision, and the purpose above should then be corrected."
   - "Should scores based on missing or supplemented inputs be flagged, e.g. with an extra column?"
 caveats:
   - "Scores are not imputed: with a missing input the score is NA (rowSums without na.rm). The registry's own IPI is used as a finished value, so it cannot be seen whether it was based on missing or supplemented data. The table has no marker for this."
