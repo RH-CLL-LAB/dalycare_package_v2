@@ -27,6 +27,8 @@ columns:
     and High; MM (R-ISS) has Low, Intermediate and High; CLL (CLL-IPI) has all
     four. The score behind the group is given by disease.
   disease: "Disease the score refers to: CLL, MM, DLBCL, FL, MCL, LPL, MZL or cHL."
+open_questions:
+  - "Should scores based on missing or supplemented inputs be flagged, e.g. with an extra column?"
 caveats:
   - "Scores are not imputed: with a missing input the score is NA (rowSums without na.rm). The registry's own IPI is used as a finished value, so it cannot be seen whether it was based on missing or supplemented data. The table has no marker for this."
   - "Laboratory values taken from all_laboratory_measurements to fill NA in SUNDK may include up to 30 days of immortality bias."
