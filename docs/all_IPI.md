@@ -21,8 +21,8 @@ Patients without a score (`NA`) are removed. The script writes `all_IPI.csv` (se
 |---|---|---|---|
 | CLL | CLL-IPI | `CLL_IPI()` (adjusted, see below) | Low to Very high |
 | MM | R-ISS | Calculated in the script from ISS, LDH and FISH | Low, Intermediate, High |
-| DLBCL | R-IPI | Registry value `RIPI_diagnosis` | as in registry |
-| FL | FLIPI2 | Registry value `FLIPI2_diagnosis` | as in registry |
+| DLBCL | R-IPI | `RIPI_diagnosis` from `clean_SUNDK_LYFO()`: the registry IPI score grouped as 0, 1-2, 3 or more | Low, Intermediate, High |
+| FL | FLIPI2 | `FLIPI2_diagnosis` from `clean_SUNDK_LYFO()`: the registry FLIPI2 score grouped as 0, 1-2, 3 or more | Low, Intermediate, High |
 | MCL | MIPI | `MIPI()` | |
 | LPL (WM) | IPSSWM | `IPSSWM()` | |
 | MZL | MALT-IPI | `MALT_IPI()` | |
@@ -43,7 +43,7 @@ Patients without a score (`NA`) are removed. The script writes `all_IPI.csv` (se
 5. Lymphoma subtypes: haemoglobin, leukocytes, lymphocytes, LDH and IgM are supplemented the same way, then the subtype-specific index is calculated.
 6. The eight tables are stacked and `IPI` is set as a factor with the four levels above.
 
-Scores are not imputed: a missing component gives `NA` and the row is dropped. For DLBCL and FL the registry's own score is used as a finished value, so it cannot be seen whether it was based on missing or supplemented data. Laboratory supplements may include up to 30 days of immortality bias.
+Scores are not imputed: a missing component gives `NA` and the row is dropped. For DLBCL and FL the registry's own score is grouped in `clean_SUNDK_LYFO()` and used as a finished value, so it cannot be seen whether it was based on missing or supplemented data. Laboratory supplements may include up to 30 days of immortality bias.
 
 ## Relation to `functions/aaIPI.R`
 
