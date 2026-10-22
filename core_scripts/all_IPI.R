@@ -1,10 +1,11 @@
-## all_IPI
-# Builds the all_IPI table for CORE: one prognostic index per patient and disease (see docs/all_IPI.md)
-# Original: IPI_eop_2026.R (author: christian brieghel), updated 2026-10-08
+## IPI RAW 
+# Sys.Date() # "2024-04-26" # Updated "2026-10-08"
+# Calculates all IPI/ISS
+# Builds the all_IPI table for CORE, see docs/all_IPI.md
 
-# Paths are set by the user running the script
+# Set paths before running
 PACKAGE_DIR = ''  # folder containing load_dalycare_package.R
-OUTPUT_DIR = ''   # folder where all_IPI.csv is written
+OUTPUT_DIR = ''   # folder where all_IPI_2026.csv is written
 source(file.path(PACKAGE_DIR, 'load_dalycare_package.R'))
 source(file.path(PACKAGE_DIR, 'clean_SDS', 'clean_SDS_pato.R'))
 #### SUNDK IPI ####
@@ -12,6 +13,7 @@ source(file.path(PACKAGE_DIR, 'clean_SDS', 'clean_SDS_pato.R'))
 load_dataset(c(SUNDK_DATASETS, 'all_patients', 'IGHV_IMGT_20261006'))
 
 ALL_SUNDK = c(SUNDK_CLL$patientid, SUNDK_DaMyDa$patientid, SUNDK_LYFO$patientid) %>% unique()
+ALL_SUNDK %>% n_distinct()
 
 load_snomed_molecular()
 load_dataset('SDS_fctrekvisition', SUNDK_CLL$patientid)
@@ -62,6 +64,12 @@ LDH =  BIOCHEMISTRY %>%
   lab_helper(lab_name = 'LDH')
 
 #### CLL ####
+SUNDK_CLL$CPR_Doedsdato %>% summary # Use this! 
+SUNDK_CLL$FU_Doedsdato %>% summary 
+all_patients %>% nrow_npatients()
+# LAB_IGHVIMGT$ighv
+SUNDK_CLL_clean %>% select(patientid, IGHV_new, IGHV, IGHVIMGT, snomed) %>%  
+  arrange(IGHV_new, IGHV, IGHVIMGT, snomed) %>% View
 SUNDK_CLL_clean = SUNDK_CLL %>% 
   clean_SUNDK_CLL() %>% 
   left_join(all_patients %>% select(-sex, -date_birth, -date_death_fu), 'patientid') %>%
@@ -93,6 +101,7 @@ SUNDK_CLL_clean = SUNDK_CLL %>%
          CLL_IPI = factor(CLL_IPI, levels = c('Low', 'Intermediate', 'High', 'Very high'))) %>% 
   mutate(year = year(date_diagnosis))
 
+SUNDK_CLL_clean$CLL_IPI %>% table(exclude = NULL)
 
 #### DAMYDA ####
 
@@ -125,6 +134,8 @@ SUNDK_DaMyDa_clean = SUNDK_DaMyDa %>%
          RISS = ifelse(ISS == 1 & RISS_Addon == "Yes", 2, RISS),
          RISS = ifelse(ISS == 2, 2, RISS)) 
 
+SUNDK_DaMyDa_clean$ISS %>% table(exclude = NULL)
+SUNDK_DaMyDa_clean$RISS %>% table(exclude = NULL)
 
 #### LYFO ####
 SUNDK_LYFO_clean = SUNDK_LYFO %>% 
@@ -144,11 +155,14 @@ SUNDK_LYFO_clean = SUNDK_LYFO %>%
          ALC_diagnosis = ifelse(is.na(ALC_diagnosis), valueALC, ALC_diagnosis),
          LDH_diagnosis = ifelse(is.na(LDH_diagnosis), valueLDH, LDH_diagnosis),
          IgM_gL_diagnosis = ifelse(is.na(IgM_gL_diagnosis), valueIGM, IgM_gL_diagnosis))
+# SUNDK_LYFO_clean$RIPI_diagnosis
 
 #### all_IPI ####
 all_IPI = bind_rows(SUNDK_CLL_clean %>% 
                       transmute(patientid, 
                                 IPI = CLL_IPI,
+                                index = 'CLL-IPI',
+                                # IPI = recode_factor(CLL.IPI,  `Very high` = 'High'),
                                 disease = 'CLL'),
                     SUNDK_DaMyDa_clean %>% 
                       filter(subtype == 'DC900') %>% 
@@ -157,44 +171,60 @@ all_IPI = bind_rows(SUNDK_CLL_clean %>%
                                                     `1` = 'Low',
                                                     `2` = 'Intermediate',
                                                     `3` = 'High'),
+                                index = 'R-ISS',
                                 disease = 'MM'),
                     SUNDK_LYFO_clean %>% 
                       filter(subtype  == 'DLBCL') %>% 
                       transmute(patientid, 
                                 IPI = RIPI_diagnosis,
+                                index = 'R-IPI',
                                 disease = 'DLBCL'),
                     SUNDK_LYFO_clean %>% 
                       filter(subtype  == 'FL') %>% 
                       transmute(patientid, 
                                 IPI = FLIPI2_diagnosis,
+                                index = 'FLIPI2',
                                 disease = 'FL'),
                     SUNDK_LYFO_clean %>% 
                       filter(subtype  == 'MCL') %>% 
                       MIPI(subtype = subtype) %>% 
                       transmute(patientid, 
                                 IPI = MIPI,
+                                index = 'MIPI',
                                 disease = 'MCL'),
                     SUNDK_LYFO_clean %>% 
                       filter(subtype  == 'WM') %>% 
                       IPSSWM() %>%
+                      # rIPSSWM(SUBTYPE = SUBTYPE) %>%
                       transmute(patientid, 
                                 IPI = IPSSWM,
+                                # IPI = r.IPSSWM,
+                                index = 'IPSSWM',
                                 disease = 'LPL'),
                     SUNDK_LYFO_clean %>% 
                       filter(subtype == 'MZL') %>% 
                       MALT_IPI() %>% 
                       transmute(patientid, 
                                 IPI = MALT_IPI,
+                                index = 'MALT-IPI',
                                 disease = 'MZL'),
                     SUNDK_LYFO_clean %>% 
                       filter(subtype =='cHL') %>% 
                       IPS() %>%
                       mutate(IPS = cut(IPS.score, c(-Inf, 2, Inf), labels = c('Low', 'High'))) %>% 
                       transmute(patientid, 
+                                # IPI = IPS,
                                 IPI = cut(IPS.score, c(-Inf, 2, Inf), labels = c('Low', 'High')),
+                                index = 'IPS',
                                 disease = 'cHL'))  %>% 
   mutate(IPI = factor(IPI, levels =  c('Low', 'Intermediate', 'High', 'Very high'))) %>% 
   filter(!is.na(IPI))
 
+all_IPI %>% nrow_npatients()
+all_IPI$IPI %>% table(exclude = NULL)
 
-write_csv2(all_IPI, file.path(OUTPUT_DIR, 'all_IPI.csv'))
+setwd(OUTPUT_DIR)
+if(TRUE){
+  write_csv2(all_IPI, paste0(getwd(), '/all_IPI_2026.csv'))
+}
+

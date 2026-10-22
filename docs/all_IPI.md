@@ -10,9 +10,10 @@ Long format, one row per patient and disease. A patient with two diseases appear
 |---|---|
 | `patientid` | Patient id |
 | `IPI` | Risk group, ordered factor: Low, Intermediate, High, Very high |
+| `index` | Index behind the group: CLL-IPI, R-ISS, R-IPI, FLIPI2, MIPI, IPSSWM, MALT-IPI or IPS |
 | `disease` | CLL, MM, DLBCL, FL, MCL, LPL, MZL or cHL |
 
-Patients without a score (`NA`) are removed. The script writes `all_IPI.csv` (semicolon separated) to `OUTPUT_DIR`; the table is then loaded into CORE.
+Patients without a score (`NA`) are removed. The script writes `all_IPI_2026.csv` (semicolon separated) to `OUTPUT_DIR`; the table is then loaded into CORE.
 
 ## Index used per disease
 
