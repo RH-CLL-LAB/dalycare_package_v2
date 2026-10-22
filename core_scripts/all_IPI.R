@@ -4,8 +4,8 @@
 # Builds the all_IPI table for CORE, see docs/all_IPI.md
 
 # Set paths before running
-PACKAGE_DIR = ''  # folder containing load_dalycare_package.R
-OUTPUT_DIR = ''   # folder where all_IPI_2026.csv is written
+PACKAGE_DIR = '/ngc/projects2/dalyca_r/data/dalycare_r_package'  # folder containing load_dalycare_package.R
+CORE_DIR = '/ngc/projects2/dalyca_r/data/core'  # all_IPI.csv is written to current/ and a dated copy to old/
 source(file.path(PACKAGE_DIR, 'load_dalycare_package.R'))
 source(file.path(PACKAGE_DIR, 'clean_SDS', 'clean_SDS_pato.R'))
 #### SUNDK IPI ####
@@ -223,8 +223,8 @@ all_IPI = bind_rows(SUNDK_CLL_clean %>%
 all_IPI %>% nrow_npatients()
 all_IPI$IPI %>% table(exclude = NULL)
 
-setwd(OUTPUT_DIR)
 if(TRUE){
-  write_csv2(all_IPI, paste0(getwd(), '/all_IPI_2026.csv'))
+  # Same structure as the other core tables: core/current/<name> and a dated copy core/old/<name>_<YYYYMMDD>
+  write_csv2(all_IPI, file.path(CORE_DIR, 'current', 'all_IPI.csv'))
+  write_csv2(all_IPI, file.path(CORE_DIR, 'old', paste0('all_IPI_', format(Sys.Date(), '%Y%m%d'), '.csv')))
 }
-
