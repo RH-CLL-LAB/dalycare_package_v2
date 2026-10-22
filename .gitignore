@@ -1,0 +1,8 @@
+# Data and generated files must never be committed
+*.csv
+*.parquet
+*.rds
+*.RData
+*.zip
+.Rhistory
+.Rproj.user/

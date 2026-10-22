@@ -13,7 +13,7 @@ Long format, one row per patient and disease. A patient with two diseases appear
 | `index` | Index behind the group: CLL-IPI, R-ISS, R-IPI, FLIPI2, MIPI, IPSSWM, MALT-IPI or IPS |
 | `disease` | CLL, MM, DLBCL, FL, MCL, LPL, MZL or cHL |
 
-Patients without a score (`NA`) are removed. The script writes `all_IPI.csv` (semicolon separated) to `core/current/` and a dated copy `all_IPI_<YYYYMMDD>.csv` to `core/old/`, following the structure of the other core tables (`CORE_DIR` at the top of the script).
+Patients without a score (`NA`) are removed. The script does not save the table: it is written to `core/` by the core pipeline, as `all_IPI.csv` (semicolon separated).
 
 ## Index used per disease
 
@@ -51,4 +51,4 @@ Scores are not imputed: a missing component gives `NA` and the row is dropped. F
 
 ## Running the script
 
-Check `PACKAGE_DIR` and `CORE_DIR` at the top of `core_scripts/all_IPI.R` and run it on the server where the datasets are available.
+Load the package, source `core_scripts/all_IPI.R` and run `all_IPI = run_all_IPI()` on the server where the datasets are available. Sourcing the file does not build anything, and the table is not saved.
