@@ -7,7 +7,7 @@ purpose: >-
   SDS_dimpatologiskdiagnose (SNOMED diagnosis code) on dw_ek_rekvisition. The
   codes are SNOMED/histology codes, not ICD-10 (translation to follow). sor and
   shak codes from the biopsy ordering department/clinic are translated using
-  Codes_shak and Codes_sor. SNOMED codes are translated using Codes_SNOMED.
+  Codes_SHAK_long and Codes_sor. SNOMED codes are translated using Codes_SNOMED.
   material_type is specified from the topographical SNOMED code with each
   material_number (i.e. SNOMED codes starting with "T"; e.g. bone marrow).
 sources:
@@ -20,6 +20,7 @@ columns:
   date_biopsy: "requisition date (dato_rekvirering from fctrekvisition), which specifies the date of biopsy"
   snomed: "SNOMED diagnosis code (diagnose_snomed_kode from dimpatologiskdiagnose)"
   text: "SNOMED codes translated into pathology diagnosis (e.g. \"myelomatose\")"
+  sor_name: "Name of the ordering department/clinic, translated from the sor code (rekvirerende_afd_sor_kode) using Codes_sor (SOR-kode -> Enhedsnavn). NA if the code is missing or not found"
   material_number: "Each patient may have multiple biopsies performed for each requisition (e.g. colon and caecum biopsies in one colonoscopy; peripheral blood and bone marrow). material_number identifies each biopsy from materialenummer"
   snomed_number: "Each biopsy may be associated with multiple SNOMED codes (e.g. 1. bone marrow with 2. CLL and 3. TP53 mutated). snomed_number identifies each SNOMED pathology code from diagnose_snomed_sekvensnummer"
 cleaning:
