@@ -3,23 +3,23 @@ status: PLANNED
 former_name: comorbidity_and_ae
 purpose: >-
   Comorbidities and adverse events, covering CTCAE-graded adverse events,
-  hypertension, type 2 diabetes, infections, IVAB (intravenous antibiotics) and
-  AKI (acute kidney injury).
+  hypertension, type 2 diabetes, infections (5 definitions, one of them
+  intravenous antibiotics) and AKI (acute kidney injury).
 sources:
   - SDS_epikur/ekokur
-  - "SP_AdministreretMedicin/OrdineretMedicin (hypertension, T2D, IVAB - by ATC code)"
+  - "SP_AdministreretMedicin/OrdineretMedicin (infections - by ATC code)"
   - all_laboratory_measurements (CTCAE, AKI)
   - "SDS diagnoses (T2D, ICD-10 DE11)"
 one_row: >-
   One comorbidity/adverse-event episode for one patient, tagged by event_type:
-  each of the 6 sub-calculations (CTCAE-graded lab AE, AKI, hypertension, T2D,
-  infection IVAB, infection 4-grade) contributes rows in the same shape.
+  each of the sub-calculations (CTCAE-graded lab AE, AKI, hypertension, T2D,
+  infections) contributes rows in the same shape.
 open_questions:
   - "Suggestion from Emelie: should the table also include CLL-CI, CCI and MACE (MACE as recently defined by Noomi for her glycemic control study)? If so, CLL-CI and MACE use procedure codes (SKS), which must then be added as a source."
   - "Some CTCAE grades can be calculated from laboratory measurements alone, but others need an index date (e.g. a baseline for relative changes). Consider calculating these from the index date in a first-line treatment table, once such a table exists."
   - "T2D definition: the R package has no prescription-based definition. The only T2D code is ICD-10 ^DE11 in NMI.R (diagnosis code) and the E11x codes in CCI; neither uses prescriptions or excludes GLP-1 drugs. Noomi's code (prescription criteria, GLP-1 drugs excluded) is to be obtained and aligned. Currently specified here as ATC A10 (SDS_epikur/ekokur, SP medicine) plus ICD-10 DE11 (SDS diagnoses)."
   - "Code matching to check in the R package: NMI.R may match only a patient's first code (^ anchors the start of the combined string), CCI_v2.R matches substrings anywhere (no ^)."
-  - "Table not yet built or run."
+  - "Method of each part: docs/all_comorbidity_and_ae.md. Table not yet released."
 columns:
   patientid: ""
   event_id: ""
