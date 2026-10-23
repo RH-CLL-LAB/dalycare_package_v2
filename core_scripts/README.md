@@ -6,6 +6,10 @@ Scripts that build new tables for CORE (as opposed to `functions/`, which holds 
 |---|---|---|
 | `all_IPI.R` | `all_IPI` | `docs/all_IPI.md` |
 | `AE_infections.R` | `all_comorbidity_and_ae` (infection events) | `docs/all_comorbidity_and_ae.md` |
+| `AE_CTCAE.R` | `all_comorbidity_and_ae` (CTCAE lab adverse events) | `docs/all_comorbidity_and_ae.md` |
+| `AE_AKI.R` | `all_comorbidity_and_ae` (acute kidney injury) | `docs/all_comorbidity_and_ae.md` |
+| `AE_T2D.R` | `all_comorbidity_and_ae` (type 2 diabetes onset) | `docs/all_comorbidity_and_ae.md` |
+| `AE_hypertension.R` | `all_comorbidity_and_ae` (hypertension) | `docs/all_comorbidity_and_ae.md` |
 
 ## Structure of a core script
 
