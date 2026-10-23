@@ -25,7 +25,8 @@
 #### Measurements ####
 #' New baselines are made at every new creatinine measurement, so that the creatinine level is always compared
 #' with a baseline within 48 hours, 7 days or a year before the measurement.
-#' @param creatinine patientid, samplingdate, samplingtime and c_value (umol/L) of creatinine (NPU.KREA)
+#' @param creatinine patientid, samplingdate, samplingtime and c_value (umol/L) of creatinine (NPU.KREA).
+#'   A missing sampling time is set to 00:00:00; measurements without a valid date are left out.
 #' @return one row per measurement with baselines, aki_def, aki_stage, aki_episode and akd (acute kidney
 #'   disease: creatinine still elevated 7-90 days after the onset)
 build_AE_AKI_measurements = function(creatinine){
@@ -33,8 +34,11 @@ build_AE_AKI_measurements = function(creatinine){
     select(patientid, samplingdate, samplingtime, c_value) %>%
     distinct() %>%
     filter(!is.na(c_value)) %>%
-    mutate(datetime = ymd_hms(paste(samplingdate, samplingtime)),
+    mutate(samplingtime = as.character(samplingtime),
+           samplingtime = if_else(is.na(samplingtime) | samplingtime == '', '00:00:00', samplingtime),
+           datetime = ymd_hms(paste(as.character(as.Date(samplingdate)), samplingtime), quiet = TRUE),
            c_value = as.numeric(c_value)) %>%
+    filter(!is.na(datetime)) %>%
     arrange(patientid, datetime)
 
   data.table::setDT(AKI)
