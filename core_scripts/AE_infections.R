@@ -1,9 +1,10 @@
 ## AE_infections
 # Infection events for the CORE table all_comorbidity_and_ae (see table_info/all_comorbidity_and_ae.yaml)
-# Based on AB_AE_infections.R (IVAB, christian brieghel) and 20250401_infections_def_cmf.Rmd (5 definitions)
+# Based on 20250401_infections_def_cmf.Rmd (5 definitions). The earlier separate IVAB_Infection event
+# (AB_AE_infections.R) was identical to definition 2 (IV_AB) and is not a separate event type anymore.
 #
-# The logic lives in build_AE_infection_IVAB() and build_AE_infection_5D(), which get the data as
-# arguments. run_AE_infections() loads the data and calls them. Nothing runs when this file is
+# The logic lives in build_AE_infection_5D(), which gets the data as arguments.
+# run_AE_infections() loads the data and calls it. Nothing runs when this file is
 # sourced; use
 #   infections = run_AE_infections()
 # The table is not saved here: writing to core/ is done by the core pipeline.
@@ -11,25 +12,6 @@
 # Output has the shape of all_comorbidity_and_ae:
 #   patientid, event_id, start_date, end_date, duration_days, event_value, max_value, event_type
 # event_id counts the events of one patient within one event_type, in date order.
-
-#### IVAB ####
-#' One event per infection treated with intravenous antibiotics (AE_infection(): at least 1 day of IV
-#' antibiotics, infections separated by more than 7 days without antibiotics).
-#' @param SP_AdministreretMedicin SP_AdministreretMedicin (loaded for the cohort)
-#' @return event_type 'IVAB_Infection'; duration_days is the number of days of IV antibiotics
-build_AE_infection_IVAB = function(SP_AdministreretMedicin){
-  SP_AdministreretMedicin %>%
-    ATC_AB() %>%
-    AE_infection() %>%
-    transmute(patientid,
-              event_id = n_inf,
-              start_date = as_date(date_infection),
-              end_date = as.Date(NA),
-              duration_days = n_days_IVAB,
-              event_value = 1,
-              max_value = as.integer(NA),
-              event_type = 'IVAB_Infection')
-}
 
 #### 5 definitions ####
 #' Infection events by 5 definitions. Infections of one definition are separated by more than 7 days.
@@ -220,7 +202,7 @@ build_AE_infection_5D = function(SP_AdministreretMedicin, SP_OrdineretMedicin, S
 }
 
 #### Run ####
-# Loads the data for all patients in all_patients and builds the infection events (IVAB and the 5
+# Loads the data for all patients in all_patients and builds the infection events (the 5
 # definitions). The dalycare package must be loaded first. Nothing runs when this file is sourced.
 run_AE_infections = function(){
   load_dataset('all_patients')
@@ -230,10 +212,6 @@ run_AE_infections = function(){
     rename_with(tolower) %>%
     filter(patientid %in% all_patients$patientid)
 
-  bind_rows(
-    build_AE_infection_IVAB(SP_AdministreretMedicin_subset) %>%
-      mutate(start_date = as.Date(start_date), duration_days = as.numeric(duration_days),
-             max_value = as.numeric(max_value)),
-    build_AE_infection_5D(SP_AdministreretMedicin_subset, SP_OrdineretMedicin_subset, SP_BC)) %>%
+  build_AE_infection_5D(SP_AdministreretMedicin_subset, SP_OrdineretMedicin_subset, SP_BC) %>%
     arrange(patientid, start_date, event_type)
 }

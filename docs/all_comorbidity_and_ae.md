@@ -21,11 +21,10 @@ One row per event, with the same columns for every part.
 
 ### Infections (`core_scripts/AE_infections.R`)
 
-`run_AE_infections()` loads the data for all patients in `all_patients` and returns the events of two parts:
+`run_AE_infections()` loads the data for all patients in `all_patients` and returns the events of the 5 infection definitions:
 
 | event_type | Definition |
 |---|---|
-| `IVAB_Infection` | Infection treated with intravenous antibiotics: `AE_infection()` on administered antibiotics (`ATC_AB()`), at least 1 day of IV antibiotics, infections separated by more than 7 days. `duration_days` is the number of days of IV antibiotics. |
 | `BC+IV_AB` | Definition 1: IV antibiotics (at least 24 hours) within 48 hours of a blood culture |
 | `IV_AB` | Definition 2: IV antibiotics for at least 24 hours, independent of blood culture |
 | `BC_drawn` | Definition 3: blood culture drawn, independent of antibiotics |
@@ -33,6 +32,8 @@ One row per event, with the same columns for every part.
 | `BC_OR_any_AB` | Definition 5: blood culture or any antibiotics (definition 3 or 4) |
 
 Infections of one definition are separated by more than 7 days. The date of an infection is the first administration (or the date of the blood culture). Prescribed medicine is not known to be taken, and the durations of prescriptions are not necessarily correct.
+
+The earlier separate `IVAB_Infection` event was identical to `IV_AB` when built on the same patients and is not a separate event type anymore. In the old SQL table it covered all patients in `SP_AdministreretMedicin`, not only `all_patients`.
 
 Sources: `SP_AlleProvesvar` (blood cultures, via `load_blood_culture_SP()`), `SP_AdministreretMedicin` and `SP_OrdineretMedicin`. The coverage period differs between these sources, so the period is not the same for all definitions.
 
