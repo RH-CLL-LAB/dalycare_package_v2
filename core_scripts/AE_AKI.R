@@ -12,10 +12,9 @@
 # publications.
 #
 # The logic lives in build_AE_AKI_measurements() (one row per creatinine measurement, with baselines, AKI
-# criteria, stage and episode) and build_AE_AKI() (one event per AKI episode). run_AE_AKI_all() loads the data
-# and calls them once: the events go to all_comorbidity_and_ae and the measurements to the table all_AKI.
-# Nothing runs when this file is sourced; use
-#   AKI = run_AE_AKI_all()   # AKI$events and AKI$all_AKI
+# criteria, stage and episode) and build_AE_AKI() (one event per AKI episode). run_AE_AKI() loads the data
+# and calls them. Nothing runs when this file is sourced; use
+#   AKI = run_AE_AKI()
 # The table is not saved here: writing to core/ is done by the core pipeline.
 #
 # Output has the shape of all_comorbidity_and_ae (event_type 'ae_AKI'):
@@ -103,22 +102,6 @@ build_AE_AKI_measurements = function(creatinine){
     ungroup()
 }
 
-#### all_AKI ####
-#' The table all_AKI: one row per creatinine measurement with the baselines, the criteria, the stage and the
-#' episode. An empty window gives a missing baseline (not Inf).
-#' @param AKI_measurements the result of build_AE_AKI_measurements()
-format_all_AKI = function(AKI_measurements){
-  AKI_measurements %>%
-    transmute(patientid, samplingdate = as.Date(samplingdate), samplingtime, datetime, c_value,
-              base_recent,
-              base_min_48h = if_else(is.infinite(base_min_48h), NA_real_, base_min_48h),
-              base_min_7d = if_else(is.infinite(base_min_7d), NA_real_, base_min_7d),
-              base_mean_7d365,
-              aki_def_48h, aki_def_7d, aki_def_year, aki_def_recent, aki_def,
-              aki_stage, aki_episode, new_aki, aki_start_time, akd) %>%
-    arrange(patientid, datetime)
-}
-
 #### Events ####
 #' One event per AKI episode.
 #' @param AKI_measurements the result of build_AE_AKI_measurements()
@@ -143,22 +126,16 @@ build_AE_AKI = function(AKI_measurements){
 }
 
 #### Run ####
-# Loads the creatinine measurements of all patients in all_patients and builds the AKI measurements and events
-# once. The dalycare package must be loaded first. Nothing runs when this file is sourced.
-#   AKI = run_AE_AKI_all()
-#   AKI$events    the ae_AKI events for all_comorbidity_and_ae (one per episode)
-#   AKI$all_AKI   the table all_AKI: one row per creatinine measurement, like the old AE_AKI table
-run_AE_AKI_all = function(){
+# Loads the creatinine measurements of all patients in all_patients and builds the AKI events. The dalycare
+# package must be loaded first. Nothing runs when this file is sourced.
+run_AE_AKI = function(){
   load_npu_common()
   load_dataset('all_patients')
   load_dataset('all_laboratory_measurements', NPU.KREA, column = 'analysiscode')
   creatinine = all_laboratory_measurements_subset %>%
     filter(patientid %in% all_patients$patientid)
   rm(all_laboratory_measurements_subset)
-  measurements = build_AE_AKI_measurements(creatinine)
-  list(events = build_AE_AKI(measurements),
-       all_AKI = format_all_AKI(measurements))
+  creatinine %>%
+    build_AE_AKI_measurements() %>%
+    build_AE_AKI()
 }
-
-# Only the events (used when the measurements are not needed)
-run_AE_AKI = function() run_AE_AKI_all()$events
