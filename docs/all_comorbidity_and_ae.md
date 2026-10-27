@@ -71,7 +71,7 @@ Comparison with the old SQL table: 99.7% of the old patients are in the new tabl
 
 ## Population
 
-Infections, AKI and T2D: all patients in `all_patients`. CTCAE adverse events and hypertension: patients with a first malignant DALYCARE diagnosis, as in the old scripts.
+Infections, AKI and T2D: all patients in `all_patients`. CTCAE adverse events and hypertension: patients with a first malignant DALYCARE diagnosis, as in the old scripts. In `CTCAE_v2.R` only ALAT, ASAT and BASP were restricted to these patients (the other types used all laboratory data); here all types use the malignant group. The whole cohort has a malignant diagnosis, so the result is the same.
 
 ## Not built yet
 

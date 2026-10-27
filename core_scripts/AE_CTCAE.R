@@ -13,6 +13,11 @@
 #   patientid, event_id, start_date, end_date, duration_days, event_value, max_value, event_type
 # event_value is the CTCAE grade (1-4) the event started with, max_value the highest grade during the event.
 
+#### Population ####
+# In CTCAE_v2.R, ALAT, ASAT and BASP run on patients with a first malignant diagnosis
+# (view_definition_first_diagnosis_malignant), while the other types run on all laboratory data. Here the
+# malignant group is used for all types. The whole cohort has a malignant diagnosis, so the result is the same.
+
 #### Which adverse events ####
 # fn = grading function in functions/CTCAE/, col = grade column it returns, event_type = label in the table.
 # The same 22 types as in the old table. AE_leukocytosis() and AE_hemoglobin_increased() were not part of it.
