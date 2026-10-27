@@ -1,10 +1,10 @@
 name: all_comorbidity_and_ae
-status: PLANNED
+status: RELEASED
 former_name: comorbidity_and_ae
 purpose: >-
   Comorbidities and adverse events, covering CTCAE-graded adverse events,
   hypertension, type 2 diabetes, infections (5 definitions, one of them
-  intravenous antibiotics) and AKI (acute kidney injury).
+  intravenous antibiotics) and AKI (acute kidney injury, one row per episode; the per-measurement table is all_AKI).
 sources:
   - SDS_epikur/ekokur
   - "SP_AdministreretMedicin/OrdineretMedicin (infections - by ATC code)"
@@ -19,7 +19,7 @@ open_questions:
   - "Some CTCAE grades can be calculated from laboratory measurements alone, but others need an index date (e.g. a baseline for relative changes). Consider calculating these from the index date in a first-line treatment table, once such a table exists."
   - "T2D definition: the R package has no prescription-based definition. The only T2D code is ICD-10 ^DE11 in NMI.R (diagnosis code) and the E11x codes in CCI; neither uses prescriptions or excludes GLP-1 drugs. Noomi's code (prescription criteria, GLP-1 drugs excluded) is to be obtained and aligned. Currently specified here as ATC A10 (SDS_epikur/ekokur, SP medicine) plus ICD-10 DE11 (SDS diagnoses)."
   - "Code matching to check in the R package: NMI.R may match only a patient's first code (^ anchors the start of the combined string), CCI_v2.R matches substrings anywhere (no ^)."
-  - "Method of each part: docs/all_comorbidity_and_ae.md. Table not yet released."
+  - "Method of each part: docs/all_comorbidity_and_ae.md."
 columns:
   patientid: ""
   event_id: ""
