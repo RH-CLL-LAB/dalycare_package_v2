@@ -33,13 +33,16 @@ CTCAE_types$event_type[CTCAE_types$fn == 'AE_WBC_decreased'] = 'ae_wbc_decreased
 #' Summarise graded measurements to events. An event is a run of the same positive grade; it ends at the
 #' first measurement with grade 0 or at a measurement with another positive grade (which starts a new event).
 #' An event that is never followed by a grade 0 or another grade ends at the last measurement of the patient.
+#' The grade '3-4' (AE_anemia(), AE_hypoalbuminemia()) is counted as grade 3. The old workflow turned it into
+#' a missing value, which the C++ program read as grade 0, so the most severe measurements ended the event.
 #' @param data patientid, date_event, value_event (grade 0-4) and type_event, one type at a time
 #' @return patientid, event_id (per patient), start_date, end_date, duration_days (end - start + 1),
 #'   event_value, max_value, event_type
 summarize_AE_events = function(data){
   data = data %>%
     mutate(date_event = as.Date(date_event),
-           value_event = as.integer(as.character(value_event))) %>%
+           # AE_anemia() and AE_hypoalbuminemia() return '3-4' for the most severe grade: counted as grade 3
+           value_event = as.integer(if_else(as.character(value_event) == '3-4', '3', as.character(value_event)))) %>%
     filter(!is.na(date_event), !is.na(value_event))
 
   marked_data = data %>%
