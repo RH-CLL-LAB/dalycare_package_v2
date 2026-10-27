@@ -9,8 +9,8 @@
 #
 # Output has the shape of all_comorbidity_and_ae (event_type 'T2D onset', one event per patient):
 #   patientid, event_id, start_date, end_date, duration_days, event_value, max_value, event_type
-# start_date is the first T2D diagnosis (ICD-10 DE11) or the first anti-diabetic prescription (ATC A10B,
-# GLP-1 analogues A10BJ excluded), whichever comes first. end_date and duration_days are empty, event_value and max_value are 1.
+# start_date is the first T2D diagnosis (ICD-10 DE11) or the first anti-diabetic prescription (ATC A10B),
+# whichever comes first. end_date and duration_days are empty, event_value and max_value are 1.
 
 #### Build ####
 #' T2D onset per patient.
@@ -26,8 +26,7 @@
 #' @param prescriptions patientid, eksd, atc (SDS_epikur and SDS_ekokur)
 build_AE_T2D = function(all_patients, diagnoses, prescriptions){
   patients = all_patients
-  # GLP-1 analogues (ATC A10BJ, e.g. semaglutide) are not counted as anti-diabetic drugs, as they are also given for obesity
-  prescriptions = prescriptions %>% mutate(eksd = as.Date(eksd)) %>% filter(!str_starts(atc, 'A10BJ'))
+  prescriptions = prescriptions %>% mutate(eksd = as.Date(eksd))
 
   # T2D identification core
   t2d_candidates = patients %>%
