@@ -34,3 +34,4 @@ cleaning:
   - "ICD-10 and ATC codes are matched by prefix with regular expressions in the R functions, not by exact match."
 caveats:
   - "The coverage period differs between the sources (SDS, SP), so do not assume the same period for all of them."
+  - "AKI (ae_AKI) is based on the KDIGO definition with a fourth criterion that is not part of the official definition: creatinine at least 1.5 times the most recent value (added by the author of the script because the data may not have enough measurements for the 48 hour and 7 day windows). AKI in this table therefore deviates from KDIGO, which should be stated in publications."
