@@ -1,0 +1,40 @@
+name: all_AKI
+status: RELEASED
+former_name: AE_AKI
+purpose: >-
+  Acute kidney injury (AKI) per creatinine measurement, based on the KDIGO
+  definition (script by Tereza Fait Kadlec). The AKI events in
+  all_comorbidity_and_ae (event_type ae_AKI, one row per AKI episode) are made
+  from this table, in the same run.
+sources:
+  - "all_laboratory_measurements (creatinine, NPU.KREA)"
+  - all_patients
+one_row: >-
+  One creatinine measurement for one patient, with the baselines it is compared
+  with, the AKI criteria, the stage and the AKI episode it belongs to.
+columns:
+  patientid: ""
+  samplingdate: ""
+  samplingtime: ""
+  datetime: "Sampling date and time (a missing time is set to 00:00:00)."
+  c_value: "Creatinine in umol/L"
+  base_recent: "Previous creatinine measurement"
+  base_min_48h: "Minimum within the past 48 hours"
+  base_min_7d: "Minimum within the past 7 days"
+  base_mean_7d365: "Mean of the past year, the 7 most recent days excluded"
+  aki_def_48h: "Increase of at least 26.5 umol/L above base_min_48h"
+  aki_def_7d: "At least 1.5 times base_min_7d"
+  aki_def_year: "At least 1.5 times base_mean_7d365"
+  aki_def_recent: "At least 1.5 times base_recent (not part of KDIGO)"
+  aki_def: "At least one of the four criteria is fulfilled"
+  aki_stage: "Stage 1-3 (the first rule that fits, see docs/all_comorbidity_and_ae.md)"
+  aki_episode: "Counter of AKI episodes per patient (the first AKI measurement after a measurement without AKI starts a new one)"
+  new_aki: "TRUE at the first measurement of an episode"
+  aki_start_time: "Date and time of the first measurement of the episode (only on that row)"
+  akd: "Acute kidney disease: creatinine still elevated 7-90 days after the onset (1/0)"
+cleaning:
+  - "Baselines are made at every new measurement, so the creatinine level is always compared with measurements within 48 hours, 7 days or a year before it. An empty window gives a missing baseline."
+caveats:
+  - "The fourth criterion (aki_def_recent) is not part of the official KDIGO definition: it was added because the data may not have enough measurements for the 48 hour and 7 day windows. AKI in this table therefore deviates from KDIGO, which should be stated in publications."
+  - "The stage is decided by the first rule that fits, not by the highest (see docs/all_comorbidity_and_ae.md)."
+  - "The creatinine unit is umol/L in the data (all spelling variants checked); no conversion is done."
