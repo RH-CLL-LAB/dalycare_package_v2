@@ -27,5 +27,6 @@ cleaning:
   - "The join between fctrekvisition and dimpatologiskdiagnose is on dw_ek_rekvisition (many-to-many). It replaces the old k_rekvnr key and the old SDS_pato table."
 caveats:
   - "The date is the requisition (biopsy) date, not the date the pathology diagnosis was made."
+  - "sor and sor_name are filled for only a small share of the requisitions (about 1-2%), because the sor code is mostly missing in the delivered SDS data; of the codes that are present, most can be translated to a unit name. shak, hospital and clinic are much more complete (about two thirds of the rows have a hospital), so use those to identify the ordering department."
   - "Free-text pathology notes (v_fritekst, formerly SDS_t_mikro_ny) are no longer delivered by pato and are not part of this table (since 2025)."
 open_questions:
