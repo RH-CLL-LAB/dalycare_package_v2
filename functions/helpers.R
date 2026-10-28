@@ -65,7 +65,7 @@ print_data = function(data){
 }
 
 #### transformers ####
-diff_hours = function(date_time_start, date_time_end) {as.numeric(difftime({{date_time_end}}, {{date_time}}, units = 'hours'))}
+diff_hours = function(date_time_start, date_time_end) {as.numeric(difftime({{date_time_end}}, {{date_time_start}}, units = 'hours'))}
 diff_days = function(date_start, date_end) {as.numeric(difftime({{date_end}},{{date_start}}, units = 'days'))}
 diff_years = function(date_start, date_end) {as.numeric(difftime({{date_end}},{{date_start}}, units = 'days'))/365.25}
 
