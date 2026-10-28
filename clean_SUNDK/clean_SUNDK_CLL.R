@@ -73,7 +73,7 @@ clean_SUNDK_CLL = function(data){
                                                                           Y = 'Yes', 
                                                                           N = 'No'))) %>% 
     transmute(patientid, 
-              date_birth,
+              date_birth = parse_sundk_date(date_birth),
               sex = recode_factor(sex , 
                                   M = 'Male',
                                   `F` = 'Female'),

@@ -38,6 +38,7 @@ build_AE_AKI_measurements = function(creatinine){
     mutate(samplingtime = as.character(samplingtime),
            samplingtime = if_else(is.na(samplingtime) | samplingtime == '', '00:00:00', samplingtime),
            datetime = ymd_hms(paste(as.character(as.Date(samplingdate)), samplingtime), quiet = TRUE),
+           samplingtime = hms::as_hms(samplingtime), # same type as samplingtime in all_laboratory_measurements
            c_value = as.numeric(c_value)) %>%
     filter(!is.na(datetime)) %>%
     arrange(patientid, datetime)
