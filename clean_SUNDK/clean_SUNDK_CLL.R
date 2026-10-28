@@ -73,7 +73,7 @@ clean_SUNDK_CLL = function(data){
                                                                           Y = 'Yes', 
                                                                           N = 'No'))) %>% 
     transmute(patientid, 
-              date_birth,
+              date_birth = parse_sundk_date(date_birth),
               sex = recode_factor(sex , 
                                   M = 'Male',
                                   `F` = 'Female'),
@@ -187,7 +187,7 @@ clean_SUNDK_CLL = function(data){
                                   `1` = 'Autologous',
                                   `2` = 'Allogeneic', #MA
                                   `3` = 'Allogeneic'), #NMA
-              date_transplant = Beh_TRANSPDATO,
+              date_transplant = parse_sundk_date(Beh_TRANSPDATO),
               
               fludara_2nd_line = Rec_Kemo_Fludarabin,
               flud_2nd_line = ifelse(Rec_Kemo_Fludarabin =='Yes', 'Fludara', NA),
