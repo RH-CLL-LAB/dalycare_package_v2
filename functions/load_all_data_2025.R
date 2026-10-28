@@ -182,7 +182,7 @@ load_all_data = function(cohort = NULL,  baseline_icd10 = NULL, coersion = FALSE
     master_data = SUNDK_CLL_subset %>%
       left_join(all_patients %>% select(patientid, date_birth), by = 'patientid') %>%
       transmute(patientid, 
-                date = dmy(Reg_Diagnose_dt),
+                date = parse_sundk_date(Reg_Diagnose_dt),
                 Age = floor(diff_years(date_birth, date)),
                 Aged65 = ifelse(Age >= 65, '>65 years', '<65 years'),
                 PS = Reg_Performancestatus,
@@ -202,7 +202,7 @@ load_all_data = function(cohort = NULL,  baseline_icd10 = NULL, coersion = FALSE
     master_data = SUNDK_LYFO_subset %>%
       left_join(all_patients_subset %>% select(patientid, date_birth), by = 'patientid') %>%
       transmute(patientid,
-                date = dmy(Reg_DiagnostiskBiopsi_dt),
+                date = parse_sundk_date(Reg_DiagnostiskBiopsi_dt),
                 Age  = floor(diff_years(date_birth, date)),
                 subtype,
                 AA_STAGE = Reg_Stadium,
@@ -215,7 +215,7 @@ load_all_data = function(cohort = NULL,  baseline_icd10 = NULL, coersion = FALSE
     master_data = SUNDK_DaMyDa_subset %>%
       left_join(all_patients_subset %>% select(patientid, date_birth), by = 'patientid') %>%
       transmute(patientid,
-                date = as_date(Reg_Diagnose_dt),
+                date = parse_sundk_date(Reg_Diagnose_dt),
                 Age = floor(diff_years(date_birth, date)),
                 PS = Reg_PerformanceStatus,
                 ISS = Stadie,
