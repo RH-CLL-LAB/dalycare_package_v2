@@ -21,7 +21,8 @@
 # Output has the shape of all_comorbidity_and_ae (event_type 'ae_AKI'):
 #   patientid, event_id, start_date, end_date, duration_days, event_value, max_value, event_type
 # start_date is the first measurement of the episode that fulfils the definition, event_value is the stage at
-# that measurement and max_value the highest stage within 7 days of it. end_date and duration_days are empty.
+# that measurement and max_value the highest stage within the episode (the AKI measurements until the first
+# measurement without AKI). end_date and duration_days are empty.
 
 #### Measurements ####
 #' New baselines are made at every new creatinine measurement, so that the creatinine level is always compared
@@ -69,21 +70,15 @@ build_AE_AKI_measurements = function(creatinine){
            aki_def_year = c_value >= base_mean_7d365 * 1.5,
            aki_def = aki_def_48h | aki_def_7d | aki_def_recent | aki_def_year) # true if at least one is true
 
-  # AKI stage
+  # AKI stage: the highest stage of all the rules that fit
+  stage_from_ratio = function(ratio) case_when(ratio >= 3 ~ 3, ratio >= 2 ~ 2, ratio >= 1.5 ~ 1, TRUE ~ NA_real_)
   AKI_stages = AKI_detected %>%
-    mutate(aki_stage = case_when(
-      c_value >= 353.6 ~ 3,
-      c_value / base_min_7d >= 3 ~ 3,
-      c_value / base_min_7d >= 2 ~ 2,
-      c_value / base_min_7d >= 1.5 ~ 1,
-      c_value / base_mean_7d365 >= 3 ~ 3,
-      c_value / base_mean_7d365 >= 2 ~ 2,
-      c_value / base_mean_7d365 >= 1.5 ~ 1,
-      c_value / base_recent >= 3 ~ 3,
-      c_value / base_recent >= 2 ~ 2,
-      c_value / base_recent >= 1.5 ~ 1,
-      c_value >= base_min_48h + 26.5 ~ 1,
-      TRUE ~ NA_real_))
+    mutate(aki_stage = pmax(if_else(c_value >= 353.6, 3, NA_real_),
+                            stage_from_ratio(c_value / base_min_7d),
+                            stage_from_ratio(c_value / base_mean_7d365),
+                            stage_from_ratio(c_value / base_recent),
+                            if_else(c_value >= base_min_48h + 26.5, 1, NA_real_),
+                            na.rm = TRUE))
 
   # AKI episodes: the first time AKI appears after a non-AKI state
   AKI_episodes = AKI_stages %>%
@@ -130,7 +125,7 @@ build_AE_AKI = function(AKI_measurements){
     summarise(onset = min(datetime[new_aki]),
               start_date = as.Date(min(datetime[new_aki])),
               event_value = aki_stage[new_aki][1],
-              max_value = max(aki_stage[aki_def & datetime <= min(datetime[new_aki]) + days(7)], na.rm = TRUE),
+              max_value = max(aki_stage[aki_def], na.rm = TRUE),
               .groups = 'drop') %>%
     transmute(patientid,
               event_id = aki_episode,
