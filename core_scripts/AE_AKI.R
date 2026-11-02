@@ -56,7 +56,7 @@ build_AE_AKI_measurements = function(creatinine){
     min(c_value[datetime >= datetime[i] - days(7) & datetime < datetime[i]], na.rm = TRUE)
   }), by = patientid]
   AKI[, base_mean_7d365 := sapply(seq_len(.N), function(i) {
-    vals = c_value[datetime >= datetime[i] - days(365) & datetime[i] - days(7) <= datetime]
+    vals = c_value[datetime >= datetime[i] - days(365) & datetime < datetime[i] - days(7)]
     if (length(vals) > 0) mean(vals, na.rm = TRUE) else NA_real_
   }), by = patientid]
 
