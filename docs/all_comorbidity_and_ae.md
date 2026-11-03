@@ -69,6 +69,8 @@ As in the old script, a patient is only kept if there is both a diagnosis date a
 
 `run_AE_hypertension()` by Noomi: one event (`hypertension event`) per patient, found before the first malignant diagnosis (`view_definition_first_diagnosis_malignant()`), so only for patients with such a diagnosis. One of three conditions is enough: diagnosis codes DI10-DI13 or DI15 on at least 2 dates at least 7 days apart; at least 2 prescriptions of first-choice antihypertensives with at least one within 365 days before the diagnosis; or prescriptions of at least 2 different ATC groups (3 characters) of antihypertensives within 365 days before the diagnosis. `start_date` is the earliest date of any condition.
 
+The prescription window is 365 days before the first malignant diagnosis. This differs from the hypertension paper this definition comes from, which used 180 days. A later study found 365 days to be better than 180, so 365 days is used going forward (confirmed by Noomi).
+
 Comparison with the old SQL table: 99.7% of the old patients are in the new table, the new table has 7.6% more patients (35,908 against 33,377), and 98.5% of the patients have the same date.
 
 ## Population

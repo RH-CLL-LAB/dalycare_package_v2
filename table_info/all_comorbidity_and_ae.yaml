@@ -35,3 +35,4 @@ cleaning:
 caveats:
   - "The coverage period differs between the sources (SDS, SP), so do not assume the same period for all of them."
   - "AKI (ae_AKI) is based on the KDIGO definition with a fourth criterion that is not part of the official definition: creatinine at least 1.5 times the most recent value (added by the author of the script because the data may not have enough measurements for the 48 hour and 7 day windows). AKI in this table therefore deviates from KDIGO, which should be stated in publications."
+  - "Hypertension (hypertension event) uses a prescription window of 365 days before the first malignant diagnosis. This differs from the original hypertension paper, which used 180 days; 365 days was chosen after a later study found it better."
