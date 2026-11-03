@@ -33,5 +33,6 @@ cleaning:
   - "CTCAE-graded adverse events use CTCAE version 5, as cited in the comments of the AE_* functions (the version is not set as a constant in the code; only the hyperkalaemia thresholds have been spot-checked against v5). Version 6 is not included."
   - "ICD-10 and ATC codes are matched by prefix with regular expressions in the R functions, not by exact match."
 caveats:
+  - "For ae_anemia and ae_hypoalbuminemia, grade 3 means grade 3-4: the data cannot tell grade 3 from grade 4 (life-threatening), so the most severe measurements are counted as grade 3 rather than left out."
   - "The coverage period differs between the sources (SDS, SP), so do not assume the same period for all of them."
   - "AKI (ae_AKI) is based on the KDIGO definition with a fourth criterion that is not part of the official definition: creatinine at least 1.5 times the most recent value (added by the author of the script because the data may not have enough measurements for the 48 hour and 7 day windows). AKI in this table therefore deviates from KDIGO, which should be stated in publications."
