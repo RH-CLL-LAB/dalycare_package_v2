@@ -26,14 +26,14 @@ One row per event, with the same columns for every part.
 | event_type | Definition |
 |---|---|
 | `BC+IV_AB` | Definition 1: IV antibiotics (at least 24 hours) within 48 hours of a blood culture |
-| `IV_AB` | Definition 2: IV antibiotics for at least 24 hours, independent of blood culture |
+| `IVAB` | Definition 2: IV antibiotics for at least 24 hours, independent of blood culture |
 | `BC_drawn` | Definition 3: blood culture drawn, independent of antibiotics |
 | `any_AB_pre_or_adm` | Definition 4: any antibiotics prescribed or administered for at least 24 hours, excluding the prophylactic antimicrobials Aciclovir, Sulfotrim and Valaciclovir |
 | `BC_OR_any_AB` | Definition 5: blood culture or any antibiotics (definition 3 or 4) |
 
 Infections of one definition are separated by more than 7 days. The date of an infection is the first administration (or the date of the blood culture). Prescribed medicine is not known to be taken, and the durations of prescriptions are not necessarily correct.
 
-The earlier separate `IVAB_Infection` event was identical to `IV_AB` when built on the same patients and is not a separate event type anymore. In the old SQL table it covered all patients in `SP_AdministreretMedicin`, not only `all_patients`.
+The earlier separate `IVAB_Infection` event was identical to `IVAB` when built on the same patients and is not a separate event type anymore. In the old SQL table it covered all patients in `SP_AdministreretMedicin`, not only `all_patients`.
 
 Sources: `SP_AlleProvesvar` (blood cultures, via `load_blood_culture_SP()`), `SP_AdministreretMedicin` and `SP_OrdineretMedicin`. The coverage period differs between these sources, so the period is not the same for all definitions.
 
@@ -41,7 +41,7 @@ Sources: `SP_AlleProvesvar` (blood cultures, via `load_blood_culture_SP()`), `SP
 
 `run_AE_CTCAE()` grades the laboratory measurements (`all_laboratory_measurements`) with the CTCAE v5.0 functions in `functions/CTCAE/` and summarises the grades to events with `summarize_AE_events()`. The same 22 types as in the old table: `ae_ALAT_increased`, `ae_ASAT_increased`, `ae_BASP_increased`, `ae_INR_increased`, `ae_anemia`, `ae_bilirubin_increased`, `ae_creatinine_increased`, `ae_eosinophilia`, `ae_haptoglobin_decreased`, `ae_hypercalcemia`, `ae_hyperkalemia`, `ae_hypermagnesemia`, `ae_hypernatremia`, `ae_hypertriglyceridemia`, `ae_hypoalbuminemia`, `ae_hypocalcemia`, `ae_hypoglycemia`, `ae_lymphocyte_count_decreased`, `ae_lymphocyte_count_increased`, `ae_neutrophil_count_decreased`, `ae_platelets_decreased` and `ae_wbc_decreased`. `AE_leukocytosis()` and `AE_hemoglobin_increased()` were not part of the old table and are not included.
 
-An event is a run of the same positive grade. It ends at the first measurement with grade 0 or at a measurement with another positive grade, which starts a new event. An event that is never followed by a lower grade ends at the last measurement of the patient. `event_value` is the grade the event started with, `max_value` the highest grade during the event, and `duration_days` is `end_date - start_date + 1`. Measurements without a grade are left out. `AE_anemia()` and `AE_hypoalbuminemia()` return the grade `'3-4'` for the most severe values, which is counted as grade 3. In the old workflow `'3-4'` became a missing value that the C++ program read as grade 0, so the most severe measurements ended the event and were not counted.
+An event is a run of the same positive grade. It ends at the first measurement with grade 0 or at a measurement with another positive grade, which starts a new event. An event that is never followed by a lower grade ends at the last measurement of the patient. `event_value` is the grade the event started with, `max_value` the highest grade during the event, and `duration_days` is `end_date - start_date + 1`. Measurements without a grade are left out. `AE_anemia()` and `AE_hypoalbuminemia()` return the grade `'3-4'` for the most severe values, which is counted as grade 3. Grade 3 and grade 4 cannot be told apart in the data, so for these two types grade 3 means grade 3-4 (confirmed by the author of the scripts). In the old workflow `'3-4'` became a missing value that the C++ program read as grade 0, so the most severe measurements ended the event and were not counted.
 
 This replaces the C++ program `process_ae_files` and the R script `AE_combined.R`. The R version is the one in `function_summarize_events_v2.R`. It has not been checked against the C++ program for every case, so compare the numbers with the old table before relying on it.
 

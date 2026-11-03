@@ -1,7 +1,7 @@
 ## AE_infections
 # Infection events for the CORE table all_comorbidity_and_ae (see table_info/all_comorbidity_and_ae.yaml)
 # Based on 20250401_infections_def_cmf.Rmd (5 definitions). The earlier separate IVAB_Infection event
-# (AB_AE_infections.R) was identical to definition 2 (IV_AB) and is not a separate event type anymore.
+# (AB_AE_infections.R) was identical to definition 2 (IVAB) and is not a separate event type anymore.
 #
 # The logic lives in build_AE_infection_5D(), which gets the data as arguments.
 # run_AE_infections() loads the data and calls it. Nothing runs when this file is
@@ -16,7 +16,7 @@
 #### 5 definitions ####
 #' Infection events by 5 definitions. Infections of one definition are separated by more than 7 days.
 #' 1) BC+IV_AB: IV antibiotics (at least 24 hours) within 48 hours of a blood culture drawn
-#' 2) IV_AB: IV antibiotics for at least 24 hours, independent of blood culture
+#' 2) IVAB: IV antibiotics for at least 24 hours, independent of blood culture
 #' 3) BC_drawn: blood culture drawn, independent of antibiotics
 #' 4) any_AB_pre_or_adm: any antibiotics prescribed or administered for at least 24 hours (not the
 #'    prophylactic antimicrobials in prophylactic_AB)
@@ -190,7 +190,7 @@ build_AE_infection_5D = function(SP_AdministreretMedicin, SP_OrdineretMedicin, S
 
   bind_rows(
     def_1_AB_BC %>% as_AE(date_inf_def_1, 'BC+IV_AB'),
-    def_2_iv_AB %>% as_AE(date_inf_def_2, 'IV_AB'),
+    def_2_iv_AB %>% as_AE(date_inf_def_2, 'IVAB'),
     def_3_BC_filtered %>% as_AE(date_inf_def_3, 'BC_drawn'),
     def_4_any_AB_filtered %>% as_AE(date_inf_def_4, 'any_AB_pre_or_adm'),
     def_5_AB_OR_BC_filtered %>% as_AE(date_inf_def_5, 'BC_OR_any_AB')) %>%
