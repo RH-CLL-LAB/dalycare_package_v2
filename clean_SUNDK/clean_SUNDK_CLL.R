@@ -131,10 +131,14 @@ clean_SUNDK_CLL = function(data){
               TP53_mut = Reg_TP53,
               TP53_ab = ifelse(Reg_Del17p =='Yes' | Reg_TP53 == 'Yes', 
                                'Yes', 'No'),
-              FISH_status = ifelse(del13q == 'Yes', 'del13q', 'Normal'),
-              FISH_status = ifelse(tri12 == 'Yes', 'tri12', FISH_status),
-              FISH_status = ifelse(del11q == 'Yes', 'del11q', FISH_status),
-              FISH_status = ifelse(del17p == 'Yes', 'del17p', FISH_status), # added - CB 2026-03-06
+              # NA when none of the four FISH markers is known; otherwise the most severe marker that is 'Yes'
+              # (del17p > del11q > tri12 > del13q), else 'Normal'
+              FISH_status = case_when(is.na(del13q) & is.na(tri12) & is.na(del11q) & is.na(del17p) ~ NA_character_,
+                                      del17p %in% 'Yes' ~ 'del17p', # added - CB 2026-03-06
+                                      del11q %in% 'Yes' ~ 'del11q',
+                                      tri12 %in% 'Yes' ~ 'tri12',
+                                      del13q %in% 'Yes' ~ 'del13q',
+                                      TRUE ~ 'Normal'),
               FISH_status = factor(FISH_status, c('del13q', 'Normal', 'tri12', 'del11q', 'del17p')),
               ZAP70 = Reg_ZAP70, 
               CD38 = Reg_CD38Positiv, 
