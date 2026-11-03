@@ -33,6 +33,8 @@ One row per event, with the same columns for every part.
 
 Infections of one definition are separated by more than 7 days. The date of an infection is the first administration (or the date of the blood culture). Prescribed medicine is not known to be taken, and the durations of prescriptions are not necessarily correct.
 
+All 5 definitions are based on SP and are not nation-wide, so they are biased in time and region, and infections cannot be defined for the whole cohort. Definition 4 could be almost nation-wide if prescriptions from the prescription registry were included, but administered medicine only exists in SP. A function based on the national hospital medicine register (SMR) can define administered antibiotics outside SP, but only for outcomes after 2018-05-15. Planned: include any antibiotic from the prescription registry in definitions 4 and 5 (in-hospital antibiotics before 2018 would still be missed), and compare definitions 2 and 4 within the SP area (from 2016/17) and nationwide (from 2018/19).
+
 The earlier separate `IVAB_Infection` event was identical to `IV_AB` when built on the same patients and is not a separate event type anymore. In the old SQL table it covered all patients in `SP_AdministreretMedicin`, not only `all_patients`.
 
 Sources: `SP_AlleProvesvar` (blood cultures, via `load_blood_culture_SP()`), `SP_AdministreretMedicin` and `SP_OrdineretMedicin`. The coverage period differs between these sources, so the period is not the same for all definitions.
