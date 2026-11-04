@@ -102,8 +102,8 @@ clean_SUNDK_LYFO = function(data){
     mutate(across(all_of(cols) & where(is.character), ~ifelse(.==-1|.==""|.=="none", NA, .))) %>%
     
     # Recode Y=1, N=0, UNK=2, waw=3 and replace everything else with NA if columns are not in the vectors specifying non categorical columns and not containing "_side" in name
-    mutate(across((contains('Reg_') & !all_of(do_not_recode_diagnosis) & !contains("_side")) | all_of(recode_1st_line) | all_of(recode_2nd_line) , ~ifelse(. == "UNK", NA, .))) %>% #CB added all_of() to avoid warning() 2024-11-14
-    mutate(across((contains('Reg_') & !all_of(do_not_recode_diagnosis) & !contains("_side")) | all_of(recode_1st_line) | all_of(recode_2nd_line) , ~recode_factor(., 'Y' = 1, "N" = 0, 
+    mutate(across((contains('Reg_') & !all_of(do_not_recode_diagnosis) & !contains("_side") & !contains("_resource_author_")) | all_of(recode_1st_line) | all_of(recode_2nd_line) , ~ifelse(. == "UNK", NA, .))) %>% #CB added all_of() to avoid warning() 2024-11-14
+    mutate(across((contains('Reg_') & !all_of(do_not_recode_diagnosis) & !contains("_side") & !contains("_resource_author_")) | all_of(recode_1st_line) | all_of(recode_2nd_line) , ~recode_factor(., 'Y' = 1, "N" = 0, 
                                                                                                                                                                   # "UNK"=2, # whY? 1/1-25
                                                                                                                                                                   "waw" = 3, .default = NA_real_))) %>% #CB added all_of() to avoid warning() 2024-11-14
     # mutate(across(c(contains('Reg_Lokal_') & !contains("_side")), ~ifelse(. %in% c(2,3), NA, .))) %>% # CB added 1/1-25
