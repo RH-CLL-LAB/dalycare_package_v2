@@ -78,7 +78,7 @@ NMI = function(data, patientid, date_diagnosis) {
                           distinct(),
                         all_diagnoses_icd10_subset %>%
                           filter(tablename != 'dimpatologiskdiagnose') %>%
-                          filter_str_detect(tablename, c('CLL', 'LYFO', 'DaMyDa'), negate = T) %>% 
+                          filter_str_detect(tablename, c('RKKP_', 'DaMyDa'), negate = T) %>% 
                           filter_str_detect(diagnosis, '^D') %>% 
                           transmute(patientid, date = date_diagnosis,  type = 'icd10' , code = diagnosis) %>% 
                           distinct()), by = 'patientid') %>% 

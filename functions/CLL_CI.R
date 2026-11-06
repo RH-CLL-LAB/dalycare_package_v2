@@ -93,7 +93,7 @@ CLL_CI = function(data, patientid, date_diagnosis = date_diagnosis) {
                         # all_diagnoses_icd10 does not contain SDS_PATO, SUNDK_LYFO or SUNDK_DaMyDa.
                         all_diagnoses_icd10_subset %>%
                           filter(tablename != 'dimpatologiskdiagnose') %>%
-                          filter_str_detect(tablename, c('CLL', 'LYFO', 'DaMyDa'), negate = T) %>%
+                          filter_str_detect(tablename, c('RKKP_', 'DaMyDa'), negate = T) %>%
                           filter_str_detect(diagnosis, '^D') %>%
                           transmute(patientid, date = date_diagnosis,  type = 'icd10' , code = diagnosis) %>% 
                           distinct(),
