@@ -10,7 +10,7 @@ CCI_v1 = function(data, patientid = patientid, icd10 = diagnosis, exclude_CLL_sc
   #' include_LC_score = FALSE (default) calculates the LC score only if present.
   #' @examples
   #' SDS_t_adm %>% CCI(icd10 = c_adiag) %>% select(patientid, CCI.score, CCI.2011.update)
-  #' all_diagnoses_icd10 %>% CCI(icd10 = diagnosis) %>% select(patientid, CCI.score, CCI.2011.update)  # NB 2026-09-14: renamed from diagnoses_all; excludes SDS_PATO/RKKP_LYFO/RKKP_DaMyDa entirely, diagnosis_raw no longer exists
+  #' all_diagnoses_icd10 %>% CCI(icd10 = diagnosis) %>% select(patientid, CCI.score, CCI.2011.update) 
   #' @references 
   #' Quan et al. Med Care. 2005;45:1130-9
   #' Quan et al. Am J Epidemiol. 2011;173:676-82

@@ -14,22 +14,17 @@ view_codes2persimune = function(){
   #' content, otherwise falls back to C_AnalysisGroup.
   #'
   #' NOTE: this is a more complete version of the analysisgroup lookup than
-  #' the one used to build all_laboratory_measurements (formerly laboratorymeasurements; which, per the reverse-
-  #' engineered pipeline spec, only used C_AnalysisGroup, not
-  #' C_New_AnalysisGroup). May be relevant to the analysisgroup coverage
-  #' gaps mentioned in the open c_value regression -- see
-  #' AENDRINGER_dalycare_package.md, item D5 -- though not confirmed to be
-  #' the same root cause. Worth mentioning to the pipeline thread.
+  #' the one used to build all_laboratory_measurements, which only uses
+  #' C_AnalysisGroup, not C_New_AnalysisGroup.
   #'
-  #' NOTE on a faithfully-preserved SQL quirk: if C_New_AnalysisGroup is
+  #' NOTE on a SQL quirk preserved from the original view: if C_New_AnalysisGroup is
   #' genuinely missing (NA), the result is NA even when C_AnalysisGroup has
   #' a value -- the original SQL only falls back to C_AnalysisGroup when
   #' C_New_AnalysisGroup is an EMPTY STRING, not when it's NULL. Reproduced
   #' here exactly as written, not "fixed", since we don't know if that was
   #' intentional.
   #'
-  #' lookup_tables columns are NOT lowercased by load_dataset() (see
-  #' AENDRINGER_dalycare_package.md, item C3) -- column names below are
+  #' lookup_tables columns are NOT lowercased by load_dataset() -- column names below are
   #' written exactly as the SQL view's quoted identifiers. Verify against
   #' the actual delivered CODES_NPU2PERSIMUNE.csv header if this errors.
   #'

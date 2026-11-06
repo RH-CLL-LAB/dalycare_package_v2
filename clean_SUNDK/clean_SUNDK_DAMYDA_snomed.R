@@ -1,8 +1,8 @@
 #' title: clean_SUNDK_DAMYDA_snomed
-#' description: This function clenas/translates snomed codes in RKKP_DaMyDa to ICD10 codes
+#' description: This function clenas/translates snomed codes in SUNDK_DaMyDa to ICD10 codes
 #' author: christian brieghel
 #' @examples 
-#' RKKP_DAMYDA %>% mutate(icd10 = clean_SUNDK_DAMYDA_SNOMED(snomed = Reg_WHOHisto)
+#' SUNDK_DaMyDa %>% mutate(icd10 = clean_SUNDK_DAMYDA_SNOMED(snomed = Reg_WHOHisto)
 
 clean_SUNDK_DAMYDA_snomed = function(data, snomed){
   data %>% 

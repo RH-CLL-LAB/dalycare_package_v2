@@ -6,7 +6,7 @@ create_antineoplastic_study = function(data, atc = NULL, atc2 = NULL, atc3 = NUL
   #' @author
   #' christian brieghel
   #' @description
-  #' Uses first DALY-CARE diagnosis from 'all_dalycare_diagnoses' (formerly 't_dalycare_diagnoses') to identify antineoplastics and create atc study  #'
+  #' Uses first DALY-CARE diagnosis from 'all_dalycare_diagnoses' to identify antineoplastics and create atc study  #'
   #' @examples
   #' load_dataset(c('all_dalycare_diagnoses', 'all_patients')) #loads all DALY-CARE diagnoses
   #' load_dalycare_icd10()
@@ -21,21 +21,12 @@ create_antineoplastic_study = function(data, atc = NULL, atc2 = NULL, atc3 = NUL
   #' @references 
   #' Brieghel et al. CLEP 2025
   
-  # NB 2026-09-18: 't_antineoplastic_treatment_draft_20250616' was a stale
-  # draft table name that no longer exists -- the current core table is
-  # 'all_antineoplastic_treatment'. See TODO.md: this table is currently
-  # delivered as CSV in core/current/ instead of parquet like its siblings,
-  # so it may still fail to be found until the pipeline/core team fixes the
-  # delivery format (load_dataset()'s catalog deliberately only scans .csv
-  # under lookup_tables/, not core/).
   load_dataset(c('all_antineoplastic_treatment'), data$patientid)
   load_dataset('SP_PatientInfo')
-  # NB 2026-09-18: SP_PatientInfo no longer has a date_received column (it's
-  # gone from every table in the package, checked). Follow-up was previously
-  # censored at the latest per-row date_received; the equivalent now is the
-  # table's own delivery date -- the dated folder it was imported from (e.g.
-  # import/SP/<date>/), which dalycare_catalog()$date already resolves per
-  # table, respecting any active use_version()/pin_data_version() pin.
+  # Follow-up is censored at the delivery date of SP_PatientInfo: the dated
+  # folder it was imported from (e.g. import/SP/<date>/), which
+  # dalycare_catalog()$date resolves per table, respecting any active
+  # use_version()/pin_data_version() pin.
   SP_max_date_fu = dalycare_catalog() %>%
     filter(name == 'SP_PatientInfo') %>%
     pull(date) %>%
@@ -98,7 +89,7 @@ create_antineoplastic_study = function(data, atc = NULL, atc2 = NULL, atc3 = NUL
              time_atc_atc3 = diff_years(date_start, date_start_atc3))
   }
   
-  load_dataset(c('SP_AdministreretMedicin', 'SP_ADT_haendelser', 'all_diagnoses_icd10', 'SDS_epikur'), data$patientid) # NB 2026-09-14: renamed from diagnoses_all
+  load_dataset(c('SP_AdministreretMedicin', 'SP_ADT_haendelser', 'all_diagnoses_icd10', 'SDS_epikur'), data$patientid)
   
   if(is.null({{atc}})){
     warning('\natc is NULL. Time to event will be calculated from date of diagnosis
@@ -118,13 +109,9 @@ create_antineoplastic_study = function(data, atc = NULL, atc2 = NULL, atc3 = NUL
     filter(diff_rx < 0,
            diff_rx > - {{interval_within_polypharmacy}}) %>% #.default within a year from diagnosis
     ATC_polypharmacy(level = {{atc_level}}) 
-  # NB 2026-09-14: all_diagnoses_icd10 (formerly diagnoses_all) no longer
-  # contains SDS_PATO/RKKP_LYFO/RKKP_DaMyDa rows at all (used to be
-  # translated, now excluded outright) -- CCI(include_LC_score = TRUE) below
-  # will silently see less second-malignancy/LC history than before for
-  # patients whose relevant diagnoses came from those three sources. No
-  # error, just fewer matches. Flagged, not fixed -- see
-  # AENDRINGER_dalycare_package.md F3e.
+  # all_diagnoses_icd10 does not contain SDS_PATO, SUNDK_LYFO or SUNDK_DaMyDa,
+  # so CCI(include_LC_score = TRUE) below does not see second-malignancy/LC
+  # history that only exists in those three sources.
   CCI_data = data %>%
     select(patientid, date_start_latest_atc) %>%
     left_join(all_diagnoses_icd10_subset, 'patientid') %>%
@@ -133,10 +120,7 @@ create_antineoplastic_study = function(data, atc = NULL, atc2 = NULL, atc3 = NUL
     CCI(include_LC_score = TRUE)
   SP_infection = SP_AdministreretMedicin_subset %>% ATC_AB() %>% AE_infection() %>%
     dplyr::rename(atc_AB = atc) %>%
-    # NB 2026-09-18: any_of() instead of a bare vector -- datetime_created no
-    # longer exists in this table (removed from the source), and select(-c(...))
-    # errors on a column that isn't there. any_of() silently skips columns
-    # that don't exist instead of failing, for the others too.
+    # any_of() skips columns that are not present in the delivered table
     select(-any_of(c('mar_action_c', 'name', 'medication_id', 'plan_id', 'datetime_created')))
   SP_ADT = SP_ADT_haendelser_subset %>% 
     AE_hospitalization()

@@ -20,7 +20,7 @@ view_definition_first_diagnosis_malignant = function(){
   #' @examples
   #' FIRST_DX_MALIGNANT = view_definition_first_diagnosis_malignant()
 
-  load_dataset('all_dalycare_diagnoses') # NB 2026-09-14: renamed from t_dalycare_diagnoses
+  load_dataset('all_dalycare_diagnoses')
   FIRST_DX = view_definition_first_diagnosis()
 
   precursor_codes = c('DD479B', 'DD472')

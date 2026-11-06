@@ -6,8 +6,6 @@
 ## Requires: arrow, dplyr, readr, rlang (all loaded by load_dalycare_package.R
 ## via library(tidyverse)/library(arrow)).
 ## When testing this file on its own: library(arrow); library(dplyr); library(readr)
-##
-## Changed 2026-08-18. See AENDRINGER_dalycare_package.md, items A1, A5, B3, C3, C4.
 
 #### Catalogue #############################################################
 
@@ -154,13 +152,9 @@ dalycare_catalog = function(refresh = FALSE, as_of = dalycare_data_pin()){
   curated_paths = curated_paths[dir.exists(curated_paths)]
 
   files_parquet = list.files(root, pattern = '\\.parquet$', recursive = TRUE, full.names = TRUE)
-  # csv files can legitimately end up anywhere, not just lookup_tables/ --
-  # e.g. all_antineoplastic_treatment.csv sits directly in core/current/
-  # alongside otherwise-all-parquet tables. Previously only lookup_tables/
-  # was scanned, which made such tables silently invisible to
-  # load_dataset() -- not even an informative "table not found" pointing at
-  # the real reason. Scan .csv everywhere now (still excluding the curated
-  # dirs, handled separately below). Changed 2026-09-18.
+  # csv files can end up anywhere, not just lookup_tables/ (e.g. directly in
+  # core/current/ alongside parquet tables), so .csv is scanned everywhere
+  # except the curated dirs, which are handled separately below.
   files_csv = list.files(root, pattern = '\\.csv$', recursive = TRUE, full.names = TRUE)
   if(length(curated_paths) > 0){
     files_csv = files_csv[!sapply(files_csv, function(f) any(startsWith(f, curated_paths)))]
@@ -342,12 +336,11 @@ load_dataset = function(dataset = NULL, value = NULL, column = 'patientid',
     #### downstream code cast as needed is simpler and safer than trying to
     #### get arrow's schema guess right. Parquet tables keep using arrow's
     #### lazy reader as before -- this only affects the lookup_tables zone.
-    #### Changed 2026-08-18, see AENDRINGER_dalycare_package.md, item C4.
     ####
     #### csv files can also now come from core/ or import/ (a pipeline table
     #### delivered as csv instead of parquet, e.g.
     #### core/current/all_antineoplastic_treatment.csv) -- see the catalog
-    #### scan above, changed 2026-09-18. Those get normal readr type
+    #### scan above. Those get normal readr type
     #### inference (same as curated datasets), NOT the all-character
     #### lookup_tables workaround above, since the mixed-type-column problem
     #### it works around is specific to the small hand-maintained lookup
@@ -390,13 +383,8 @@ load_dataset = function(dataset = NULL, value = NULL, column = 'patientid',
     #### data may still be a lazy Arrow Dataset here (parquet), not a
     #### data.frame -- names()<- does not work on it, use rename_with()
     #### instead, which works on both a tibble and an arrow_dplyr_query.
-    #### Checked for collisions across the whole catalogue before enabling
-    #### this -- no table had two columns differing only by case.
-    #### Changed 2026-08-18, reconsidered and narrowed 2026-08-26.
-    #### See AENDRINGER_dalycare_package.md, item C3.
-    # Lowercase column names for all bulk tables except the RKKP registries
-    # (renamed SUNDK_* 2026-09-17, formerly RKKP_*; kept matching both since
-    # older pinned/archived data may still resolve to RKKP_* names).
+    # Lowercase column names for all bulk tables except the SUNDK registries
+    # (the regex also matches RKKP_* so older pinned/archived data still resolves).
     # These preserve their original mixed case (as delivered by the source)
     # because clean_SUNDK_*() functions are written against that case.
     # lookup_tables are also excluded (see below).
@@ -406,7 +394,7 @@ load_dataset = function(dataset = NULL, value = NULL, column = 'patientid',
       column = tolower(column)
       if(!is.null(selected_columns)) selected_columns = tolower(selected_columns)
     } else if(is_rkkp){
-      # RKKP preserves mixed case but patientid must be lowercase for joins
+      # SUNDK preserves mixed case but patientid must be lowercase for joins
       data = data %>% rename_with(~ ifelse(tolower(.x) == 'patientid', 'patientid', .x))
     }
 

@@ -140,7 +140,7 @@ source(file.path(PKG_HOME, 'functions/clean_antineoplastics.R'))
 source(file.path(PKG_HOME, 'functions/create_antineoplastic_study_v3.R'))
 
 
-##### RKKP #####
+##### SUNDK #####
 source(file.path(PKG_HOME, 'functions/CLL_WONT.R'))
 source(file.path(PKG_HOME, 'functions/CLL_IPI_2023.R'))
 source(file.path(PKG_HOME, 'functions/CLL_IPI.R'))
@@ -154,7 +154,7 @@ source(file.path(PKG_HOME, 'functions/NCCN_IPI.R'))
 source(file.path(PKG_HOME, 'functions/CNS_IPI.R'))
 source(file.path(PKG_HOME, 'functions/aaIPI.R')) #needs split?
 
-source(file.path(PKG_HOME, 'functions/MAYO_20_20_20.R')) # Update when RKKP_DAMYDA has been updated
+source(file.path(PKG_HOME, 'functions/MAYO_20_20_20.R')) # Update when SUNDK_DaMyDa has been updated
 source(file.path(PKG_HOME, 'functions/R_ISS.R')) 
 source(file.path(PKG_HOME, 'functions/R2_ISS.R'))
 source(file.path(PKG_HOME, 'functions/RW_ISS.R'))

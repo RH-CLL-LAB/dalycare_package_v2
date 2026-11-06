@@ -1,6 +1,6 @@
 # all_IPI
 
-`all_IPI` is a table in CORE with one prognostic index group per patient and disease, calculated for the SUNDK registries (CLL, DaMyDa, LYFO). It is built by `core_scripts/all_IPI.R` (derived from `IPI_eop_2026.R`, last updated 2026-10-08). Column definitions and caveats are in `table_info/all_IPI.yaml`.
+`all_IPI` is a table in CORE with one prognostic index group per patient and disease, calculated for the SUNDK registries (CLL, DaMyDa, LYFO). It is built by `core_scripts/all_IPI.R` (derived from `IPI_eop_2026.R`). Column definitions and caveats are in `table_info/all_IPI.yaml`.
 
 ## Output
 
@@ -13,7 +13,7 @@ Long format, one row per patient and disease. A patient with two diseases appear
 | `index` | Index behind the group: CLL-IPI, R-ISS, R-IPI, FLIPI2, MIPI, IPSSWM, MALT-IPI or IPS |
 | `disease` | CLL, MM, DLBCL, FL, MCL, LPL, MZL or cHL |
 
-Patients without a score (`NA`) are removed. The script does not save the table: it is written to `core/` by the core pipeline, as `all_IPI.csv` (semicolon separated).
+Patients without a score (`NA`) are removed. The script does not save the table: it is written to `core/` by the core pipeline, as `all_IPI.parquet`.
 
 ## Index used per disease
 

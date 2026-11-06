@@ -5,9 +5,9 @@ clean_SUNDK_DAMYDA = function(data){
   #' @author
   #' mikkel werling, christian brieghel, emma ellegard pedersen
   #' @description
-  #' Cleans RKKP DaMyDa v18 or higher (since 2024)
+  #' Cleans SUNDK DaMyDa v18 or higher (since 2024)
   #' @examples
-  #' MM_clean = SUNDK_DaMyDa %>% clean_SUNDK_DAMYDA() # NB 2026-09-17: raw table renamed from RKKP_DaMyDa to SUNDK_DaMyDa
+  #' MM_clean = SUNDK_DaMyDa %>% clean_SUNDK_DAMYDA()
   #' @references 
   #' Gimsing et al. CLEP. 2016:8
   #' https://db-dokumentation-sundk.dk/Public/
@@ -16,7 +16,7 @@ clean_SUNDK_DAMYDA = function(data){
   
   ### -- ENSURE NECESSARY TABLES ARE IMPORTED --
   
-  if(!exists('all_patients')){load_dataset('all_patients')} # NB 2026-09-15: renamed from patient
+  if(!exists('all_patients')){load_dataset('all_patients')}
   if(!exists('Codes_kommunekoder')){load_dataset('Codes_kommunekoder')}
   Codes_kommunekoder = Codes_kommunekoder %>% 
     dplyr::rename(Kommunenr = KODE) %>%
@@ -135,7 +135,7 @@ clean_SUNDK_DAMYDA = function(data){
               height_diagnosis = Reg_Hoejde,
               plasmacell_percentage_BM_diagnosis = Reg_ProcentKlonalePlasmaceller,
               plasmacell_infiltration_BM_diagnosis = Reg_PCINFMARV,
-              # FISH_performed_diagnosis = Reg_FISH, # Not found in RKKP-docu https://www.db-dokumentation-sundk.dk/Public/Variable.aspx?db2=1000001086
+              # FISH_performed_diagnosis = Reg_FISH, # Not found in SUNDK-docu https://www.db-dokumentation-sundk.dk/Public/Variable.aspx?db2=1000001086
               FISH_performed_diagnosis = as.character(Cyto_FishUdfoert),  
               karyotype_performed_diagnosis = Reg_Karyotypning_gennemfoert, # alias MDX50_CYTOGEN
               bone_lesion_diagnosis = Reg_Knogleforandringer,

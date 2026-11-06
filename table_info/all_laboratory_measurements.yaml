@@ -47,4 +47,6 @@ caveats:
   - "SP results exist only for patients seen in SP, and an SP row is only kept when SDS does not already have it. Result coverage therefore differs between patients and over time, and SP patients are overrepresented. For analyses of the whole cohort, do not assume the same laboratory coverage for every patient; check how many patients have SP data (see patient_data_overview, column SP). For studies across regions, use SDS_laboratorieproevesvar instead; its coverage is not uniform across regions either, but it is the best available."
   - About 90% of SP rows have no matching SDS row. The likely cause is that SP does not report all results to SDS.
   - "A few high-volume text values (Gruppesvar, bare Paavist, Erstattet, Aflyst, Gruppe, KOMM) are not mapped, so c_value and c_value_text are both NA for them; the raw value is kept."
+  - "Values with thousands notation, such as `1.234`, are read as the decimal number 1.234, not as 1234."
+  - "Rows with a placeholder result value are dropped, so the raw value of those rows is not kept in the table."
   - "SDS_laboratorieproevesvar has full coverage from around 2015."

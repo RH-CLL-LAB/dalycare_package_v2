@@ -13,7 +13,7 @@ AE_AKI = function(data, date = samplingdate, time = samplingtime, value = value,
   #' @references 
   #' Carrero JJ et al. Kidney Int. 2023 Jan;103(1):53-69.
   
-  load_dataset('all_patients') # NB 2026-09-15: renamed from patient
+  load_dataset('all_patients')
   dat = data %>%
     select(patientid = {{patientid}}, samplingdate = {{date}}, samplingtime = {{time}}, result = {{value}}) %>%
     left_join(all_patients %>% select(patientid, date_birth)) %>%

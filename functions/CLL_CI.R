@@ -4,7 +4,7 @@ CLL_CI = function(data, patientid, date_diagnosis = date_diagnosis) {
   #' @author
   #' christian brieghel
   #' @description
-  #' Calculates CLL comorbidity index (CLL-CI) scores from vascular, gastro, and endocrinology defined SKS codes (LPR), ATC codes (EPIKUR), and ICD10 codes (all_diagnoses_icd10, formerly diagnoses_all).
+  #' Calculates CLL comorbidity index (CLL-CI) scores from vascular, gastro, and endocrinology defined SKS codes (LPR), ATC codes (EPIKUR), and ICD10 codes (all_diagnoses_icd10).
   #' @note
   #' Input only requires variable with 'patientid'
   #' @examples
@@ -41,12 +41,11 @@ CLL_CI = function(data, patientid, date_diagnosis = date_diagnosis) {
   SKS_codes = CODES_K %>%  filter_str_detect(DIAG_CODE, SKS_vascular) %>% pull(DIAG_CODE)
   
   # load data
-  load_dataset('all_diagnoses_icd10', ICD10_codes, column = 'diagnosis') # NB 2026-09-14: renamed from diagnoses_all; now excludes SDS_PATO/RKKP_LYFO/RKKP_DaMyDa entirely
+  load_dataset('all_diagnoses_icd10', ICD10_codes, column = 'diagnosis') # all_diagnoses_icd10 holds only native ICD10 sources (no SDS_PATO, SUNDK_LYFO or SUNDK_DaMyDa)
   load_dataset('SDS_epikur', ATC_codes, column = 'atc') # 2 mio instead of 13
   
   # use lpr surgery procedures
-  # NB 2026: view_sds_t_adm_t_sksopr was a Postgres view (join of SDS_t_adm
-  # and SDS_t_sksopr on k_recnum). Replaced with direct join here.
+  # join SDS_t_adm and SDS_t_sksopr on k_recnum
   load_dataset('SDS_t_adm', cohort)
   load_dataset('SDS_t_sksopr', value = SKS_codes, column = 'c_opr')
   view_sds_t_adm_t_sksopr_subset = SDS_t_adm_subset %>%
@@ -70,11 +69,8 @@ CLL_CI = function(data, patientid, date_diagnosis = date_diagnosis) {
   # Use catalog mtime (file modification time) as availability date proxy.
   # import/ tables have a parsed date from the folder name; core/current/ tables
   # do not, so mtime is the most reliable cross-zone fallback.
-  # NB 2026-09-14: date_max_icd10 tracks 'all_diagnoses_icd10' (formerly
-  # 'diagnoses_all'), which is what this function actually loads above --
-  # not 'all_dalycare_diagnoses' (formerly 't_dalycare_diagnoses'), which is
-  # never loaded here. The name below previously said 't_dalycare_diagnoses',
-  # a pre-existing mismatch corrected here rather than carried forward.
+  # date_max_icd10 tracks 'all_diagnoses_icd10', which is the table loaded
+  # above (not 'all_dalycare_diagnoses').
   cat_dates = dalycare_catalog() %>%
     filter(name %in% c('SDS_epikur', 'SDS_kontakter', 'all_diagnoses_icd10')) %>%
     mutate(avail_date = as_date(ifelse(!is.na(date),
@@ -94,11 +90,8 @@ CLL_CI = function(data, patientid, date_diagnosis = date_diagnosis) {
     left_join(bind_rows(SDS_epikur_subset %>%
                           transmute(patientid, date = eksd,  type = 'atc', code = atc) %>%
                           distinct(),
-                        # NB 2026-09-14: all_diagnoses_icd10 (formerly diagnoses_all)
-                        # already excludes PATO/RKKP_LYFO/RKKP_DaMyDa entirely at the
-                        # source, so these two filters are now redundant for those
-                        # three -- kept as-is since they still correctly exclude
-                        # RKKP_CLL, which the table does include.
+                        # all_diagnoses_icd10 does not contain SDS_PATO, SUNDK_LYFO or
+                        # SUNDK_DaMyDa, so these filters only matter for the SUNDK CLL rows.
                         all_diagnoses_icd10_subset %>%
                           filter(tablename != 'dimpatologiskdiagnose') %>%
                           filter_str_detect(tablename, c('RKKP_', 'DaMyDa'), negate = T) %>%

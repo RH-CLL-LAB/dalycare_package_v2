@@ -5,7 +5,7 @@ clean_lab_values = function(data, NPU = analysiscode, value = value, unit = unit
   #' christian brieghel
   #' @description
   #' This function cleans laboratory values from SDS_lab_forsker (LABKA), 
-  #' SP_AlleProvesvar, and all_laboratory_measurements (aggregated, formerly laboratorymeasurements)
+  #' SP_AlleProvesvar, and all_laboratory_measurements (aggregated)
   #' The cleaned numeric value is called value2
   #' @examples 
   #' load_npu_common() 

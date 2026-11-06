@@ -16,7 +16,7 @@ load_all_data = function(cohort = NULL,  baseline_icd10 = NULL, coersion = FALSE
   LPR_datasets = c('SDS_t_sksopr', 'SDS_t_sksube', 'SDS_t_diag', 'SDS_t_udtilsgh')
   LPR3_datasets_kontakt = c('SDS_procedurer_kirurgi', 'SDS_procedurer_andre', 'SDS_diagnoser', 'SDS_resultater') #SDS_laegemiddel? SDS_forloebsmarkoerer?
   LPR3_datasets_forloeb = c('SDS_koder',  'SDS_organisationer') 
-  RKKP_datasets = c('SUNDK_CLL', 'SUNDK_LYFO', 'SUNDK_DaMyDa') # NB 2026-09-17: renamed from RKKP_*
+  RKKP_datasets = c('SUNDK_CLL', 'SUNDK_LYFO', 'SUNDK_DaMyDa')
   SDS_other = c('SDS_epikur', 'SDS_indberetningmedpris', 'SDS_fctrekvisition', 'SDS_tumor_aarlig', 'SDS_laboratorieproevesvar', 'SDS_t_dodsaarsag_2') #
   SP_dataset = c("SP_AdministreretMedicin", "SP_ADT_haendelser",  "SP_AlleProvesvar",
                  "SP_Behandlingsniveau",
@@ -25,7 +25,7 @@ load_all_data = function(cohort = NULL,  baseline_icd10 = NULL, coersion = FALSE
                  "SP_Bloddyrkning_del1","SP_Bloddyrkning_del2", "SP_Bloddyrkning_del3", "SP_Bloddyrkning_del4", 
                  "SP_ITAOphold", "SP_Journalnotater_Del1", 
                   "SP_OrdineretMedicin", "SP_Social_Hx", "SP_VitaleVaerdier")
-  load_dataset(c('all_patients'), {{cohort}}) # NB 2026-09-15: renamed from patient
+  load_dataset(c('all_patients'), {{cohort}})
   
   #' loads SP_datasets
   for(.sp_tbl in SP_dataset){
@@ -362,8 +362,7 @@ load_all_data = function(cohort = NULL,  baseline_icd10 = NULL, coersion = FALSE
   
   #' loads SDS_other
   load_dataset(SDS_other, {{cohort}})
-  # NB 2026: SDS_t_mikro_ny retired -- fritekst-patologinoter leveres ikke
-  # længere fra kilden. Se AENDRINGER punkt D8.
+  # Free-text pathology notes are not delivered (SDS_t_mikro_ny is not loaded).
   if(nrow(SDS_epikur_subset) > 0){
     master_data = SDS_epikur_subset %>% 
       transmute(patientid, date = as_date(eksd), atc) %>% 
@@ -378,8 +377,8 @@ load_all_data = function(cohort = NULL,  baseline_icd10 = NULL, coersion = FALSE
       mutate(source = 'SDS_indberetningmedpris') %>% 
       bind_rows(master_data)
   }
-  # NB 2026: SDS_pato erstattet af SDS_fctrekvisition + SDS_dimpatologiskdiagnose.
-  # SNOMED-kode hentes via join på dw_ek_rekvisition. Se AENDRINGER punkt D8.
+  # Pathology comes from SDS_fctrekvisition + SDS_dimpatologiskdiagnose.
+  # The SNOMED code is fetched by a join on dw_ek_rekvisition.
   if(exists('SDS_fctrekvisition_subset') && nrow(SDS_fctrekvisition_subset) > 0 &&
      exists('SDS_dimpatologiskdiagnose_subset') && nrow(SDS_dimpatologiskdiagnose_subset) > 0){
     master_data = SDS_fctrekvisition_subset %>%
@@ -420,7 +419,7 @@ load_all_data = function(cohort = NULL,  baseline_icd10 = NULL, coersion = FALSE
   master_data = master_data %>% 
     arrange(patientid, date)
   
-  load_dataset('all_dalycare_diagnoses', {{cohort}}) # NB 2026-09-14: renamed from t_dalycare_diagnoses (logic unchanged)
+  load_dataset('all_dalycare_diagnoses', {{cohort}})
   if(is.null({{baseline_icd10}})){
     master_data = master_data %>% 
       group_by(patientid) %>% 
