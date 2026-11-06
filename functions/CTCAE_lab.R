@@ -6,7 +6,7 @@ CTCAE_lab = function(data, patientid = patientid, NPU = NPU, value = value2,
   #' christian brieghel
   #' @description
   #' This function transforms laboratory values from SDS_laboratorieproevesvar (LABKA), 
-  #' SP_AlleProvesvar, and/or all_laboratory_measurements (aggregated, formerly laboratorymeasurements) to CTCAEv5.0 defined adverse events
+  #' SP_AlleProvesvar, and/or all_laboratory_measurements (aggregated) to CTCAEv5.0 defined adverse events
   #' author: christian brieghel
   #' @note 
   #' Defines AEs: 

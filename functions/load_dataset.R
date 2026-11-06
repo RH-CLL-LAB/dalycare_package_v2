@@ -6,8 +6,6 @@
 ## Requires: arrow, dplyr, readr, rlang (all loaded by load_dalycare_package.R
 ## via library(tidyverse)/library(arrow)).
 ## When testing this file on its own: library(arrow); library(dplyr); library(readr)
-##
-## Changed 2026-08-18. See AENDRINGER_dalycare_package.md, items A1, A5, B3, C3, C4.
 
 #### Catalogue #############################################################
 
@@ -52,7 +50,7 @@ pin_data_version = function(date){
   #' dated import/<SOURCE>/<date>/ folder. Tables with no data that old are
   #' dropped with a warning, not silently substituted with newer data.
   #' lookup_tables/, core/development/, and researcher-curated datasets
-  #' (EHR_curated, lab_data) are NOT pinned -- these are reference data /
+  #' (EHR_curated, lab_data) are not pinned -- these are reference data /
   #' out-of-band uploads, not part of the dated release timeline.
   #' Internal: called by use_version('<date>'), which is the only supported
   #' way for users to pin.
@@ -154,13 +152,9 @@ dalycare_catalog = function(refresh = FALSE, as_of = dalycare_data_pin()){
   curated_paths = curated_paths[dir.exists(curated_paths)]
 
   files_parquet = list.files(root, pattern = '\\.parquet$', recursive = TRUE, full.names = TRUE)
-  # csv files can legitimately end up anywhere, not just lookup_tables/ --
-  # e.g. all_antineoplastic_treatment.csv sits directly in core/current/
-  # alongside otherwise-all-parquet tables. Previously only lookup_tables/
-  # was scanned, which made such tables silently invisible to
-  # load_dataset() -- not even an informative "table not found" pointing at
-  # the real reason. Scan .csv everywhere now (still excluding the curated
-  # dirs, handled separately below). Changed 2026-09-18.
+  # csv files can end up anywhere, not just lookup_tables/ (e.g. directly in
+  # core/current/ alongside parquet tables), so .csv is scanned everywhere
+  # except the curated dirs, which are handled separately below.
   files_csv = list.files(root, pattern = '\\.csv$', recursive = TRUE, full.names = TRUE)
   if(length(curated_paths) > 0){
     files_csv = files_csv[!sapply(files_csv, function(f) any(startsWith(f, curated_paths)))]
@@ -208,7 +202,7 @@ dalycare_catalog = function(refresh = FALSE, as_of = dalycare_data_pin()){
     zone     = zone,
     # For import tables: the first path segment below import/, e.g. the
     # <SOURCE> folder in import/<SOURCE>/<date>/ or EHR_curated. Curated
-    # sub-folders (EHR_curated/CLL_TREAT, ...) are deliberately NOT split out,
+    # sub-folders (EHR_curated/CLL_TREAT, ...) are not split out,
     # so all curated tables print in one block per top-level folder.
     # NA for other zones.
     source   = ifelse(zone == 'import', sub('/.*$', '', rel), NA_character_),
@@ -333,25 +327,10 @@ load_dataset = function(dataset = NULL, value = NULL, column = 'patientid',
 
     if(!quiet) cat(paste0('\nLoading ', tbl, if(filtered) ' for values... ' else '... '))
 
-    #### CSV lookup tables are read fully, as character columns, via readr --
-    #### not via arrow::open_dataset(). Arrow infers CSV column types from a
-    #### sample of early rows; several lookup tables mix numeric-looking and
-    #### free-text values in the same column further down (e.g. Codes_NPU's
-    #### formula column), which makes arrow's schema inference fail outright.
-    #### Lookup tables are small, so reading them fully as text and letting
-    #### downstream code cast as needed is simpler and safer than trying to
-    #### get arrow's schema guess right. Parquet tables keep using arrow's
-    #### lazy reader as before -- this only affects the lookup_tables zone.
-    #### Changed 2026-08-18, see AENDRINGER_dalycare_package.md, item C4.
-    ####
-    #### csv files can also now come from core/ or import/ (a pipeline table
-    #### delivered as csv instead of parquet, e.g.
-    #### core/current/all_antineoplastic_treatment.csv) -- see the catalog
-    #### scan above, changed 2026-09-18. Those get normal readr type
-    #### inference (same as curated datasets), NOT the all-character
-    #### lookup_tables workaround above, since the mixed-type-column problem
-    #### it works around is specific to the small hand-maintained lookup
-    #### tables, not large pipeline output.
+    # CSV lookup tables are read as character columns with readr: arrow's type
+    # guess fails on columns that mix numbers and text (e.g. Codes_NPU).
+    # CSV files from core/ or import/ get normal readr type inference.
+    # Parquet tables use arrow's lazy reader.
     if(row$filetype == 'csv'){
       if(row$zone == 'lookup_tables'){
         data = readr::read_csv(row$path, col_types = readr::cols(.default = readr::col_character()),
@@ -365,48 +344,21 @@ load_dataset = function(dataset = NULL, value = NULL, column = 'patientid',
       data = arrow::open_dataset(row$path, format = row$filetype)
     }
 
-    #### Lowercase column names -- ONLY for import/core (bulk source tables).
-    #### The old, pre-2026 Postgres workflow explicitly lowercased these
-    #### (documented for SP; confirmed by testing for SDS_t_adm, SDS_t_sksopr,
-    #### and others -- the current pipeline delivers them with varying case,
-    #### which broke package code written against the old lowercase
-    #### convention). Restoring lowercase here is a faithful restoration of
-    #### the OLD contract, not a new one.
-    ####
-    #### lookup_tables are DELIBERATELY EXCLUDED. Evidence: the package's own
-    #### original, untouched code references lookup-table columns with exact
-    #### mixed case written without quoting (e.g. DIAG_CODE, `NPU code`,
-    #### Kode, Tekst, SKSkode, Kodetekst) -- since R is case-sensitive
-    #### (unlike Postgres, which folds unquoted identifiers to lowercase),
-    #### this only works in production if the real underlying column
-    #### genuinely has that exact case. Small reference tables are typically
-    #### uploaded via dbWriteTable(), which preserves the R data.frame's
-    #### original column case in Postgres -- unlike the bulk tables' import
-    #### path. Forcing these to lowercase does not restore an old contract;
-    #### it invents a new one, and risks breaking any researcher's own
-    #### script written against the original names. Left exactly as
-    #### delivered instead.
-    ####
-    #### data may still be a lazy Arrow Dataset here (parquet), not a
-    #### data.frame -- names()<- does not work on it, use rename_with()
-    #### instead, which works on both a tibble and an arrow_dplyr_query.
-    #### Checked for collisions across the whole catalogue before enabling
-    #### this -- no table had two columns differing only by case.
-    #### Changed 2026-08-18, reconsidered and narrowed 2026-08-26.
-    #### See AENDRINGER_dalycare_package.md, item C3.
-    # Lowercase column names for all bulk tables except the RKKP registries
-    # (renamed SUNDK_* 2026-09-17, formerly RKKP_*; kept matching both since
-    # older pinned/archived data may still resolve to RKKP_* names).
-    # These preserve their original mixed case (as delivered by the source)
-    # because clean_SUNDK_*() functions are written against that case.
-    # lookup_tables are also excluded (see below).
+    # Column names are lowercased for bulk tables (import/core), except:
+    #  - the SUNDK registries (the regex also matches RKKP_* so older
+    #    pinned/archived data still resolves), which keep the mixed case as
+    #    delivered because clean_SUNDK_*() is written against it
+    #  - lookup_tables, which keep their original case: package code refers to
+    #    columns such as DIAG_CODE and `NPU code` by exact case
+    # data may still be a lazy Arrow Dataset here (parquet), so rename_with()
+    # is used, which works on both a tibble and an arrow_dplyr_query.
     is_rkkp = grepl('^(SUNDK|RKKP)_', tbl, ignore.case = FALSE)
     if(row$zone != 'lookup_tables' && !is_rkkp && !isTRUE(row$curated)){
       data = data %>% rename_with(tolower)
       column = tolower(column)
       if(!is.null(selected_columns)) selected_columns = tolower(selected_columns)
     } else if(is_rkkp){
-      # RKKP preserves mixed case but patientid must be lowercase for joins
+      # SUNDK preserves mixed case but patientid must be lowercase for joins
       data = data %>% rename_with(~ ifelse(tolower(.x) == 'patientid', 'patientid', .x))
     }
 

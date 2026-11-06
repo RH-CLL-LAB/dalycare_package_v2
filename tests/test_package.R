@@ -13,18 +13,18 @@ check = function(label, expr){
       cat('  OK   ', label, '\n')
       PASS <<- c(PASS, label)
     } else {
-      cat('  FEJL ', label, '-- betingelse ikke opfyldt\n')
-      FAIL <<- c(FAIL, paste0(label, ' -- betingelse ikke opfyldt'))
+      cat('  FAIL ', label, '-- condition not met\n')
+      FAIL <<- c(FAIL, paste0(label, ' -- condition not met'))
     }
   }, error = function(e){
-    cat('  FEJL ', label, '--', conditionMessage(e), '\n')
+    cat('  FAIL ', label, '--', conditionMessage(e), '\n')
     FAIL <<- c(FAIL, paste0(label, ' -- ', conditionMessage(e)))
   })
   invisible(result)
 }
 
 cat('==========================================================\n')
-cat('1. Loader hele pakken (load_dalycare_package.R)\n')
+cat('1. Load the whole package (load_dalycare_package.R)\n')
 cat('==========================================================\n')
 
 check('source(load_dalycare_package.R) + use_version(development)', {
@@ -33,23 +33,20 @@ check('source(load_dalycare_package.R) + use_version(development)', {
   exists('load_dataset')
 })
 
-check('load_dalycare_package.R printer tabelkatalog automatisk', {
-  ## Den gamle load_data_v2.R printede "List of tables from ..." ved hver
-  ## source(). Genskabt 2026-08-31 via load_dataset() uden argumenter.
-  ## Tjekker her at et separat kald til load_dataset() faktisk printer noget
-  ## -- bekrÃ¦fter mekanismen virker, ikke selve source()-kaldets output
-  ## (som allerede skete i tjekket ovenfor og ikke kan fanges her).
+check('load_dalycare_package.R prints the table catalogue', {
+  ## The catalogue is printed by load_dataset() without arguments.
+  ## A separate call to load_dataset() is checked here, which confirms that the
+  ## mechanism works (the output of the source() call itself cannot be captured).
   output = capture.output(load_dataset())
   any(grepl('List of tables', output))
 })
 
-check('help_info.R kÃ¸rte igennem', {
+check('help_info.R ran through', {
   exists('SP_DATASETS') && exists('SDS_DATASETS') && exists('SUNDK_DATASETS') && exists('PERSIMUNE_DATASETS')
 })
 
-check('load_data_v2.R er inert (fejler tydeligt hvis sourcet ved en fejl)', {
-  # NB: filen ligger i den versionerede mappe (PKG_HOME), ikke i
-  # pakkeroden -- rettet 2026-09-15, testede tidligere den forkerte sti.
+check('load_data_v2.R is inert (fails clearly if sourced by mistake)', {
+  # The file is in the versioned folder (PKG_HOME), not in the package root.
   ok = FALSE
   tryCatch(source(file.path(PKG_HOME, 'load_data_v2.R')),
            error = function(e) ok <<- grepl('retired', conditionMessage(e), ignore.case = TRUE))
@@ -57,61 +54,61 @@ check('load_data_v2.R er inert (fejler tydeligt hvis sourcet ved en fejl)', {
 })
 
 cat('\n==========================================================\n')
-cat('2. Katalog og release-rÃ¸dder\n')
+cat('2. Catalogue and release roots\n')
 cat('==========================================================\n')
 
-check('dalycare_release_roots() finder alle tre mapper', {
+check('dalycare_release_roots() finds all three folders', {
   r = dalycare_release_roots()
   length(r) == 3
 })
 
-check('dalycare_catalog() finder tabeller', {
+check('dalycare_catalog() finds tables', {
   cat_ = dalycare_catalog(refresh = TRUE)
   nrow(cat_) > 0
 })
 
-check('lookup_tables-zone er ikke tom', {
+check('lookup_tables zone is not empty', {
   cat_ = dalycare_catalog()
   sum(cat_$zone == 'lookup_tables') > 0
 })
 
-check('core/old bliver markeret som archived, ikke skjult', {
+check('core/old is marked as archived, not hidden', {
   cat_ = dalycare_catalog()
-  TRUE  # rent strukturtjek, fejler kun hvis catalog() selv fejler
+  TRUE  # structure check only, fails only if catalog() itself fails
 })
 
 cat('\n==========================================================\n')
-cat('3. load_dataset() -- kernefunktionen\n')
+cat('3. load_dataset() -- the core function\n')
 cat('==========================================================\n')
 
-check('load_dataset() uden argumenter printer katalog', {
+check('load_dataset() without arguments prints the catalogue', {
   invisible(capture.output(load_dataset()))
   TRUE
 })
 
-check('load_dataset("all_patients") indlÃ¦ser og assigner', {
+check('load_dataset("all_patients") loads and assigns', {
   load_dataset('all_patients')
   exists('all_patients') && nrow(all_patients) > 0
 })
 
-check('load_dataset("all_dalycare_diagnoses") indlÃ¦ser og assigner', {
+check('load_dataset("all_dalycare_diagnoses") loads and assigns', {
   load_dataset('all_dalycare_diagnoses')
   exists('all_dalycare_diagnoses') && nrow(all_dalycare_diagnoses) > 0
 })
 
-check('load_dataset() fejler tydeligt pÃ¥ ukendt tabel', {
+check('load_dataset() fails clearly on an unknown table', {
   ok = FALSE
-  tryCatch(load_dataset('denne_tabel_findes_ikke'),
+  tryCatch(load_dataset('this_table_does_not_exist'),
            error = function(e) ok <<- grepl('not found', conditionMessage(e), ignore.case = TRUE))
   ok
 })
 
-check('load_dataset() lowercaser kolonnenavne (SDS_t_sksopr)', {
+check('load_dataset() lowercases column names (SDS_t_sksopr)', {
   load_dataset('SDS_t_sksopr')
   all(names(SDS_t_sksopr) == tolower(names(SDS_t_sksopr)))
 })
 
-check('load_dataset() med value/column filtrerer og giver _subset', {
+check('load_dataset() with value/column filters and gives _subset', {
   load_dataset('all_dalycare_diagnoses')
   if(!exists('all_patients')) load_dataset('all_patients')
   ids = sample(all_patients$patientid, min(100, nrow(all_patients)))
@@ -120,48 +117,47 @@ check('load_dataset() med value/column filtrerer og giver _subset', {
 })
 
 cat('\n==========================================================\n')
-cat('4. Lookup-tabeller (csv, ny release-rod)\n')
+cat('4. Lookup tables (csv, new release root)\n')
 cat('==========================================================\n')
-cat('Codes_ATC og Codes_NPU testes IKKE via load_dataset() her -- det ville\n')
-cat('overskrive den specielt transformerede version, load_functions.R\n')
-cat('bygger ved pakkeindlÃ¦sning (med atc/name hhv. NPU/short_definition-\n')
-cat('kolonner), som CLL_CI() og clean_lab_values() er direkte afhÃ¦ngige af.\n')
-cat('I stedet tjekkes strukturen pÃ¥ de globale variable, som de allerede\n')
-cat('stÃ¥r efter pakkeindlÃ¦sning.\n\n')
+cat('Codes_ATC and Codes_NPU are NOT tested via load_dataset() here -- that would\n')
+cat('overwrite the transformed version that load_functions.R builds when the\n')
+cat('package is loaded (with atc/name and NPU/short_definition columns), which\n')
+cat('CLL_CI() and clean_lab_values() depend on. Instead the structure of the\n')
+cat('global variables as they stand after loading the package is checked.\n\n')
 
-check('Codes_ATC (bygget af load_functions.R) har atc/name-kolonner', {
+check('Codes_ATC (built by load_functions.R) has atc/name columns', {
   exists('Codes_ATC') && all(c('atc', 'name') %in% names(Codes_ATC)) && nrow(Codes_ATC) > 0
 })
 
-check('Codes_NPU (bygget af load_functions.R) har NPU/short_definition-kolonner', {
+check('Codes_NPU (built by load_functions.R) has NPU/short_definition columns', {
   exists('Codes_NPU') && all(c('NPU', 'short_definition') %in% names(Codes_NPU)) && nrow(Codes_NPU) > 0
 })
 
-check('Codes_NPU csv lÃ¦ses korrekt via readr (regressionstest: mixed-content kolonne, se item C4) -- lÃ¦st direkte, ikke via load_dataset(), for ikke at overskrive den globale Codes_NPU', {
+check('Codes_NPU csv is read correctly by readr (regression test: mixed-content column) -- read directly, not via load_dataset(), so the global Codes_NPU is not overwritten', {
   path = dalycare_catalog()$path[dalycare_catalog()$name == 'Codes_NPU']
   raw = readr::read_csv(path, col_types = readr::cols(.default = readr::col_character()), show_col_types = FALSE)
   nrow(raw) > 0
 })
 
-check('CODES_K indlÃ¦ses', {
+check('CODES_K loads', {
   load_dataset('CODES_K')
   exists('CODES_K') && nrow(CODES_K) > 0
 })
 
-check('Codes_ICD10 bygges korrekt af load_functions.R (fra Codes_DST_DIAG_CODES)', {
+check('Codes_ICD10 is built correctly by load_functions.R (from Codes_DST_DIAG_CODES)', {
   exists('Codes_ICD10') && nrow(Codes_ICD10) > 0 && 'icd10' %in% names(Codes_ICD10)
 })
 
-check('Codes_DST_DIAG_CODES indlÃ¦ses helt igennem (tester mixed-content csv-kolonner)', {
+check('Codes_DST_DIAG_CODES loads completely (tests mixed-content csv columns)', {
   load_dataset('Codes_DST_DIAG_CODES')
   exists('Codes_DST_DIAG_CODES') && nrow(Codes_DST_DIAG_CODES) > 0
 })
 
-check('Codes_all bygges korrekt (samler alle 6 lookup-tabeller, tester lowercase-referencer i load_functions.R)', {
+check('Codes_all is built correctly (combines all 6 lookup tables, tests lowercase references in load_functions.R)', {
   exists('Codes_all') && nrow(Codes_all) > 0 && all(c('sks', 'atc', 'snomed', 'icd10', 'npu', 'shak') %in% Codes_all$type)
 })
 
-check('Codes_sor indlæses (komma-separeret, UTF-8, kolonner: Enhedsnavn, SOR-kode, SghAfd-kode)', {
+check('Codes_sor loads (comma separated, UTF-8, columns: Enhedsnavn, SOR-kode, SghAfd-kode)', {
   load_dataset('Codes_sor')
   exists('Codes_sor') && nrow(Codes_sor) > 50000 &&
     all(c('Enhedsnavn', 'SOR-kode', 'SghAfd-kode') %in% names(Codes_sor))
@@ -171,32 +167,32 @@ cat('\n==========================================================\n')
 cat('5. load_biochemistry() / all_laboratory_measurements\n')
 cat('==========================================================\n')
 
-check('load_biochemistry() finder all_laboratory_measurements', {
+check('load_biochemistry() finds all_laboratory_measurements', {
   if(!exists('NPU.HGB')) load_npu_common()
   LAB = load_biochemistry(labs = NPU.HGB)
   nrow(LAB) > 0
 })
 
-check('all_laboratory_measurements har c_value-kolonnen', {
+check('all_laboratory_measurements has the c_value column', {
   LAB = load_biochemistry(labs = NPU.HGB)
   'c_value' %in% names(LAB)
 })
 
-check('load_biochemistry(assign = TRUE) assigner korrekt navn', {
+check('load_biochemistry(assign = TRUE) assigns the correct name', {
   load_biochemistry(labs = NPU.HGB, assign = TRUE)
   exists('all_laboratory_measurements_subset')
 })
 
-check('samplingdate (text i SDS_laboratorieproevesvar) parser som dato uden nye NA', {
+check('samplingdate (text in SDS_laboratorieproevesvar) parses as a date without new NA', {
   load_dataset('SDS_laboratorieproevesvar', c(NPU.HGB), 'analysiscode')
   d = SDS_laboratorieproevesvar_subset
   n_na_before = sum(is.na(d$samplingdate))
   n_na_after  = sum(is.na(suppressWarnings(as_date(d$samplingdate))))
-  # tillad enkelte uregelmÃ¦ssige rÃ¥-vÃ¦rdier (<0.1%), ikke et generelt formatproblem
+  # allow a few irregular raw values (<0.1%), but not a general format problem
   (n_na_after - n_na_before) / nrow(d) < 0.001
 })
 
-check('PATO-kilderne har de forventede tabeller/kolonner (SDS_fctrekvisition m.fl.)', {
+check('PATO-kilderne have the expected tables/columns (SDS_fctrekvisition etc.)', {
   ok = TRUE
   for(tbl in c('SDS_fctrekvisition', 'SDS_fctpatologiskprocedure', 'SDS_dimpatologiskdiagnose')){
     load_dataset(tbl)
@@ -205,13 +201,13 @@ check('PATO-kilderne har de forventede tabeller/kolonner (SDS_fctrekvisition m.f
   ok
 })
 
-check('pin_data_version()/unpin_data_version() sÃ¦tter og rydder pinnen', {
+check('pin_data_version()/unpin_data_version() sets and clears the pin', {
   before = dalycare_data_pin()
-  ok1 = is.null(before) # forventet default state -- fejler nedenunder hvis en tidligere test-kÃ¸rsel efterlod en pin, uden at det er en reel fejl
+  ok1 = is.null(before) # expected default state -- fails below if an earlier test run left a pin behind
   cat_dates = dalycare_catalog()$date
   cat_dates = cat_dates[!is.na(cat_dates)]
   if(length(cat_dates) == 0){
-    cat('  (springer over -- ingen daterede filer i kataloget at pinne mod)\n')
+    cat('  (skipped -- no dated files in the catalogue to pin against)\n')
     TRUE
   } else {
     test_date = as.character(min(cat_dates))
@@ -223,23 +219,23 @@ check('pin_data_version()/unpin_data_version() sÃ¦tter og rydder pinnen', {
   }
 })
 
-check('table_info() lister dokumenterede tabeller og table_info(navn, sektion) virker', {
-  # Bruger YAML-filerne i <PKG_HOME>/table_info/ (skal vaere udrullet).
+check('table_info() lists documented tables and table_info(name, section) works', {
+  # Uses the YAML files in <PKG_HOME>/table_info/ (must be deployed).
   overview = table_info()
   first = overview$name[1]
   cols = table_info(first, 'columns')
   is.data.frame(overview) && nrow(overview) > 0 &&
     !is.null(table_info(first)) &&
     is.data.frame(cols) && identical(names(cols), c('column', 'description')) &&
-    inherits(try(table_info('findes_ikke'), silent = TRUE), 'try-error') &&
-    inherits(try(table_info(first, 'findes_ikke'), silent = TRUE), 'try-error')
+    inherits(try(table_info('does_not_exist'), silent = TRUE), 'try-error') &&
+    inherits(try(table_info(first, 'does_not_exist'), silent = TRUE), 'try-error')
 })
 
 cat('\n==========================================================\n')
 cat('6. load_blood_culture_SP()\n')
 cat('==========================================================\n')
 
-check('load_blood_culture_SP() finder tabellen og filtrerer', {
+check('load_blood_culture_SP() finds the table and filters', {
   BC = load_blood_culture_SP()
   nrow(BC) > 0 && any(grepl('PROC_NAME|proc_name', names(BC), ignore.case = TRUE))
 })
@@ -248,7 +244,7 @@ cat('\n==========================================================\n')
 cat('7. load_datasets_head()\n')
 cat('==========================================================\n')
 
-check('load_datasets_head() opretter _head-objekter', {
+check('load_datasets_head() creates _head objects', {
   load_datasets_head(head = 2)
   any(grepl('_head$', ls(envir = environment())))
 })
@@ -257,7 +253,7 @@ cat('\n==========================================================\n')
 cat('8. filter_first_diagnosis()\n')
 cat('==========================================================\n')
 
-check('filter_first_diagnosis() kÃ¸rer uden select(-priority)-fejl', {
+check('filter_first_diagnosis() runs without the select(-priority) error', {
   load_dataset('all_dalycare_diagnoses')
   load_dataset('all_patients')
   CLL_cohort = all_dalycare_diagnoses %>% filter_first_diagnosis('DC911', str_contains = FALSE)
@@ -265,10 +261,10 @@ check('filter_first_diagnosis() kÃ¸rer uden select(-priority)-fejl', {
 })
 
 cat('\n==========================================================\n')
-cat('9. CLL_CI() -- fuld ende-til-ende, view-erstatning + typecast\n')
+cat('9. CLL_CI() -- full end to end\n')
 cat('==========================================================\n')
 
-check('CLL_CI() kÃ¸rer igennem og giver scorer', {
+check('CLL_CI() runs through and gives scores', {
   if(!exists('CLL_cohort')){
     load_dataset('all_dalycare_diagnoses')
     load_dataset('all_patients')
@@ -279,11 +275,11 @@ check('CLL_CI() kÃ¸rer igennem og giver scorer', {
 })
 
 cat('\n==========================================================\n')
-cat('10. Alle 24 CTCAE-funktioner (AE_*)\n')
+cat('10. All 24 CTCAE functions (AE_*)\n')
 cat('==========================================================\n')
-cat('Hver funktion kaldes mod sin egen NPU-kodegruppe (fra NPU_codes.R).\n')
-cat('Fejlbesked printes direkte, ikke kun PASS/FEJL, sÃ¥ en fejl her ikke\n')
-cat('krÃ¦ver manuel gentestning bagefter.\n\n')
+cat('Each function is called with its own NPU code group (from NPU_codes.R).\n')
+cat('The error message is printed directly, not only PASS/FAIL, so a failure\n')
+cat('does not require manual retesting afterwards.\n\n')
 
 if(!exists('NPU.HGB')) load_npu_common()
 
@@ -319,47 +315,47 @@ for(fn_name in names(CTCAE_MAP)){
   label   = paste0(fn_name, '() -- ', npu_var)
 
   result = tryCatch({
-    if(!exists(fn_name, mode = 'function')) stop('funktionen findes ikke i det indlÃ¦ste miljÃ¸')
-    if(!exists(npu_var)) stop('NPU-koden ', npu_var, ' findes ikke i load_npu_common()')
+    if(!exists(fn_name, mode = 'function')) stop('the function does not exist in the loaded environment')
+    if(!exists(npu_var)) stop('the NPU code ', npu_var, ' does not exist in load_npu_common()')
     LAB = load_biochemistry(labs = get(npu_var))
     fn  = get(fn_name)
     AE  = LAB %>% fn()
-    if(nrow(AE) == 0) stop('0 rÃ¦kker i output')
+    if(nrow(AE) == 0) stop('0 rows in output')
     'OK'
-  }, error = function(e) paste('FEJL:', conditionMessage(e)))
+  }, error = function(e) paste('FAIL:', conditionMessage(e)))
 
   if(result == 'OK'){
     cat('  OK   ', label, '\n')
     PASS = c(PASS, label)
   } else {
-    cat('  FEJL ', label, '--', sub('^FEJL: ', '', result), '\n')
-    FAIL = c(FAIL, paste0(label, ' -- ', sub('^FEJL: ', '', result)))
+    cat('  FAIL ', label, '--', sub('^FAIL: ', '', result), '\n')
+    FAIL = c(FAIL, paste0(label, ' -- ', sub('^FAIL: ', '', result)))
   }
 }
 
 cat('\n==========================================================\n')
-cat('11. Tunge, hyppigt brugte funktioner -- endnu utestet\n')
+cat('11. Heavy, frequently used functions\n')
 cat('==========================================================\n')
 
-check('clean_SUNDK_CLL() renser CLL-registret og giver rÃ¦kker', {
-  load_dataset('SUNDK_CLL') # NB 2026-09-17: renamed from RKKP_CLL
+check('clean_SUNDK_CLL() cleans the CLL registry and gives rows', {
+  load_dataset('SUNDK_CLL')
   CLL_CLEAN = SUNDK_CLL %>% clean_SUNDK_CLL()
   nrow(CLL_CLEAN) > 0
 })
 
-check('clean_SUNDK_LYFO() renser LYFO-registret (dansk transliteration, F5)', {
-  load_dataset('SUNDK_LYFO') # NB 2026-09-17: renamed from RKKP_LYFO
+check('clean_SUNDK_LYFO() cleans the LYFO registry (Danish transliteration)', {
+  load_dataset('SUNDK_LYFO')
   LYFO_CLEAN = SUNDK_LYFO %>% clean_SUNDK_LYFO()
   nrow(LYFO_CLEAN) > 0
 })
 
-check('clean_SUNDK_DAMYDA() renser DAMYDA-registret (dansk transliteration, F5)', {
-  load_dataset('SUNDK_DaMyDa') # NB 2026-09-17: renamed from RKKP_DaMyDa. Tabelnavnet er mixed-case, funktionsnavnet er ikke
+check('clean_SUNDK_DAMYDA() cleans the DaMyDa registry (Danish transliteration)', {
+  load_dataset('SUNDK_DaMyDa') # the table name is mixed case, the function name is not
   DAMYDA_CLEAN = SUNDK_DaMyDa %>% clean_SUNDK_DAMYDA()
   nrow(DAMYDA_CLEAN) > 0
 })
 
-check('CCI_v1() (Charlson comorbidity) kÃ¸rer pÃ¥ diagnosedata', {
+check('CCI_v1() (Charlson comorbidity) runs on diagnosis data', {
   load_dataset('all_dalycare_diagnoses')
   load_dataset('all_patients')
   cohort = all_dalycare_diagnoses %>% filter_first_diagnosis('DC911', str_contains = FALSE)
@@ -367,13 +363,13 @@ check('CCI_v1() (Charlson comorbidity) kÃ¸rer pÃ¥ diagnosedata', {
   nrow(result) > 0
 })
 
-check('CCI() (v2) kÃ¸rer pÃ¥ all_diagnoses_icd10 (F3e -- PATO/LYFO/DaMyDa udelukket fra kilden)', {
+check('CCI() (v2) runs on all_diagnoses_icd10 (SDS_PATO/SUNDK_LYFO/SUNDK_DaMyDa are not in the table)', {
   load_dataset('all_diagnoses_icd10')
   result = all_diagnoses_icd10 %>% CCI(icd10 = diagnosis)
   nrow(result) > 0 && all(c('CCI_score', 'CCI2011_score') %in% names(result))
 })
 
-check('right_truncation() advarer men stopper ikke ved status == NA (F2)', {
+check('right_truncation() warns but does not stop when status == NA', {
   load_dataset('all_patients')
   cohort = all_patients %>% mutate(date_event = as.Date(NA))
   warned = FALSE
@@ -385,7 +381,7 @@ check('right_truncation() advarer men stopper ikke ved status == NA (F2)', {
   is.data.frame(result) && nrow(result) > 0 && (sum(is.na(cohort$status)) == 0 || warned)
 })
 
-check('AE_AKI() -- akut nyreskade, fuld kÃ¦de: load_biochemistry -> clean_lab_values -> AE_AKI', {
+check('AE_AKI() -- acute kidney injury, full chain: load_biochemistry -> clean_lab_values -> AE_AKI', {
   if(!exists('NPU.KREA')) load_npu_common()
   KREA_LAB = load_biochemistry(labs = NPU.KREA)
   CREATININE_clean = KREA_LAB %>% clean_lab_values()
@@ -393,7 +389,7 @@ check('AE_AKI() -- akut nyreskade, fuld kÃ¦de: load_biochemistry -> clean_lab_
   nrow(AKI) > 0
 })
 
-check('load_all_data() (fra load_all_data_2025.R) -- den store bulk-loader kÃ¸rer uden fejl pÃ¥ en lille kohorte', {
+check('load_all_data() (fra load_all_data_2025.R) -- the large bulk loader runs without errors on a small cohort', {
   load_dataset('all_patients')
   cohort_small = sample(all_patients$patientid, min(200, nrow(all_patients)))
   load_all_data(cohort = cohort_small)
@@ -421,28 +417,28 @@ check('view_codes2persimune()', {
 })
 
 cat('\n==========================================================\n')
-cat('12. Alle funktioner i pakken er defineret (eksistens-tjek)\n')
+cat('12. All functions in the package are defined (existence check)\n')
 cat('==========================================================\n')
-cat('BekrÃ¦fter kun at alle ~104 filer sourcedes uden syntaksfejl, og at\n')
-cat('funktioner faktisk blev oprettet. Tester IKKE funktionernes adfÃ¦rd --\n')
-cat('kun de dele, der har et dedikeret tjek ovenfor (afsnit 1-10), er\n')
-cat('funktionelt testet. Resten (CCI, prognostiske scorer, KM_plot,\n')
-cat('forest_plot_*, m.fl.) krÃ¦ver domÃ¦nespecifik viden om input for at\n')
-cat('kunne testes automatisk, og er ikke dÃ¦kket her.\n\n')
+cat('Only confirms that all ~104 files were sourced without syntax errors and\n')
+cat('that functions were created. Does NOT test the behaviour of the functions --\n')
+cat('only the parts with a dedicated check above (sections 1-10) are\n')
+cat('functionally tested. The rest (CCI, prognostic scores, KM_plot,\n')
+cat('forest_plot_*, etc.) needs domain knowledge of the input to be tested\n')
+cat('automatically and is not covered here.\n\n')
 
-alle_funktioner = ls(envir = environment())
-alle_funktioner = alle_funktioner[sapply(alle_funktioner, function(x) is.function(get(x)))]
-cat('Antal funktioner defineret i sessionen:', length(alle_funktioner), '\n')
+all_functions = ls(envir = environment())
+all_functions = all_functions[sapply(all_functions, function(x) is.function(get(x)))]
+cat('Number of functions defined in the session:', length(all_functions), '\n')
 
 cat('\n==========================================================\n')
-cat('OPSUMMERING\n')
+cat('SUMMARY\n')
 cat('==========================================================\n')
 cat('PASS:', length(PASS), '\n')
-cat('FEJL:', length(FAIL), '\n')
+cat('FAIL:', length(FAIL), '\n')
 if(length(FAIL) > 0){
-  cat('\nFejlede tjek:\n')
+  cat('\nFailed checks:\n')
   for(f in FAIL) cat('  -', f, '\n')
 }
 
-cat('\nAlle dele af pakken, inklusive selve indgangspunktet\n')
-cat('(load_dalycare_package.R), er nu testet.\n')
+cat('\nAll parts of the package, including the entry point\n')
+cat('(load_dalycare_package.R), are covered.\n')

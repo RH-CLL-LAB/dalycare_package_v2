@@ -140,7 +140,7 @@ source(file.path(PKG_HOME, 'functions/clean_antineoplastics.R'))
 source(file.path(PKG_HOME, 'functions/create_antineoplastic_study_v3.R'))
 
 
-##### RKKP #####
+##### SUNDK #####
 source(file.path(PKG_HOME, 'functions/CLL_WONT.R'))
 source(file.path(PKG_HOME, 'functions/CLL_IPI_2023.R'))
 source(file.path(PKG_HOME, 'functions/CLL_IPI.R'))
@@ -154,7 +154,7 @@ source(file.path(PKG_HOME, 'functions/NCCN_IPI.R'))
 source(file.path(PKG_HOME, 'functions/CNS_IPI.R'))
 source(file.path(PKG_HOME, 'functions/aaIPI.R')) #needs split?
 
-source(file.path(PKG_HOME, 'functions/MAYO_20_20_20.R')) # Update when RKKP_DAMYDA has been updated
+source(file.path(PKG_HOME, 'functions/MAYO_20_20_20.R')) # Update when SUNDK_DaMyDa has been updated
 source(file.path(PKG_HOME, 'functions/R_ISS.R')) 
 source(file.path(PKG_HOME, 'functions/R2_ISS.R'))
 source(file.path(PKG_HOME, 'functions/RW_ISS.R'))
@@ -252,18 +252,11 @@ LANCET = c('#00468bff', '#ed0000ff', '#42b540ff', '#0099b4ff' )
 palette(BLOOD)
 options(scipen = 9999)
 
-# Default the on-screen X11 graphics device to the 'cairo' font backend
-# instead of R's legacy Xlib backend. Xlib expects old X core fonts that
-# are often missing on modern Linux servers (NGC included), causing
-# "X11 protocol error: BadFont (invalid Font parameter)" and a plot that
-# silently never appears -- no error, just nothing on screen -- when
-# connecting via X11-forwarding (e.g. through MobaXTerm, one of the two
-# documented ways to reach the NGC HPC). cairo uses the system's normal
-# fontconfig instead and avoids this. Confirmed fix 2026-09-18.
-# Guarded: only set where X11/cairo are actually available, so this is a
-# no-op (not an error) on a platform without them, e.g. RStudio Server
-# (renders its Plots pane over the browser, not via X11 at all) or a local
-# Windows/Mac R session.
+# Default the X11 graphics device to the 'cairo' backend. The legacy Xlib
+# backend needs X core fonts that are missing on NGC, so plots over
+# X11-forwarding (e.g. MobaXTerm) fail with "BadFont" and nothing is shown.
+# Only set where X11/cairo are available, so it does nothing on RStudio Server
+# or a local Windows/Mac session.
 if(capabilities('X11') && capabilities('cairo')){
   options(X11type = 'cairo')
 }

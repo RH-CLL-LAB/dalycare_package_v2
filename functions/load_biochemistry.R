@@ -5,8 +5,6 @@ load_biochemistry = function(labs = NULL, assign = FALSE){
   #' christian brieghel (PostgreSQL version); parquet version 2026
   #' @description
   #' Loads dataset containing biochemistry from all_laboratory_measurements
-  #' (renamed 2026-09-15, formerly laboratorymeasurements -- rename only, no
-  #' content/logic change).
   #' 'labs' must contain NPU codes, e.g. from lists from load_npu_common()
   #' @examples
   #' LAB_df = load_biochemistry(c(NPU.B2M, NPU.LDH))

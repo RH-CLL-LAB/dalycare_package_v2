@@ -66,7 +66,7 @@ aaMIPI = function(data, age = age_diagnosis, PS = PS_diagnosis, LDH = LDH_diagno
            MIPI.score = ifelse({{subtype}} == 'MCL', MIPI.score, NA)) %>% 
     mutate(MIPI = cut(MIPI.score, c(0, 3.399, 3.658, Inf), labels = c('Low', 'Intermediate', 'High')))
     # mutate(MIPI = cut(MIPI.score, c(0, 5.7, 6.2, Inf), labels = c('Low', 'Intermediate', 'High')))
-} # Updated to RKKP ver 20 and higher
+} # Updated to SUNDK ver 20 and higher
 
 aaIPSSWM = function(data){
   #' @title

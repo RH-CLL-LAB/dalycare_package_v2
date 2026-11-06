@@ -13,7 +13,7 @@ CCI = function(data, patientid = patientid, icd10 = diagnosis, include_LC_score 
   #' updated bug overwriting CCI scores - CB 2026-01-24
   #' @examples
   #' SDS_t_adm %>% CCI(icd10 = c_adiag) %>% select(patientid, CCI_score, CCI2011_score)
-  #' all_diagnoses_icd10 %>% CCI(icd10 = diagnosis) %>% select(patientid, CCI_score, CCI2011_score)  # NB 2026-09-14: renamed from diagnoses_all; excludes SDS_PATO/RKKP_LYFO/RKKP_DaMyDa entirely, diagnosis_raw no longer exists
+  #' all_diagnoses_icd10 %>% CCI(icd10 = diagnosis) %>% select(patientid, CCI_score, CCI2011_score) 
   #' @references 
   #' Quan et al. Med Care. 2005;45:1130-9
   #' Quan et al. Am J Epidemiol. 2011;173:676-82

@@ -57,7 +57,7 @@ IMPORT_TABLES = dalycare_catalog()$name[dalycare_catalog()$zone == 'import']
 SP_DATASETS = IMPORT_TABLES[grepl('SP_', IMPORT_TABLES)]
 PERSIMUNE_DATASETS = IMPORT_TABLES[grepl('PERSIMUNE_', IMPORT_TABLES)]
 SDS_DATASETS = IMPORT_TABLES[grepl('SDS_', IMPORT_TABLES)]
-SUNDK_DATASETS = IMPORT_TABLES[grepl('^(SUNDK|RKKP)_', IMPORT_TABLES)]
+SUNDK_DATASETS = IMPORT_TABLES[grepl('^SUNDK_', IMPORT_TABLES)]
 
 print_color('\nFor documentation of a core curated table (purpose, sources, one row, columns):\n', 'black')
 print_color(" table_info('all_patients')\n", 'blue')

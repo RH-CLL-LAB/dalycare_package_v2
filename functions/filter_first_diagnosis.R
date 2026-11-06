@@ -4,24 +4,20 @@ filter_first_diagnosis = function(data, diagnosis = NULL, str_contains = TRUE, m
   #' @author
   #' christian brieghel
   #' @description
-  #' Defines first DALY-CARE diagnosis from 'all_dalycare_diagnoses' (formerly 't_dalycare_diagnoses') as the earliest occurrence and calculates KM years from table 'all_patients' (formerly 'patient').
+  #' Defines first DALY-CARE diagnosis from 'all_dalycare_diagnoses' as the earliest occurrence and calculates KM years from table 'all_patients'.
   #' Argument multiple = 'both' allows for patients with both diagnoses
   #' @note
   #' Note that filter_first_diagnosis comes with a caveat, because it uses all diagnoses regardless of origin to define the first occurring diagnosis.
   #' Thus, patients may in fact have been diagnosed years prior to 2002, and if they are then admitted with a LC diagnosis after 2002,
   #' this date admission diagnosis will define their first diagnosis
   #' Seriously consider filtering all_dalycare_diagnoses based on tablename first:
-  #' NB 2026-09: tablename for PATO changed 't_pato' -> 'dimpatologiskdiagnose',
-  #' 't_tumor' -> 'tumor_aarlig'. SUNDK (formerly RKKP) tablenames resolve to
-  #' the file stem: 'CLL', 'LYFO', 'DaMyDa' (NOT 'SUNDK_CLL'/'RKKP_CLL').
-  #' Confirmed 2026-09-18 via unique(all_dalycare_diagnoses$tablename) --
-  #' full observed set: 'dimpatologiskdiagnose', 'diagnoser', 't_adm', 't_diag',
+  #' PATO tablenames are 'dimpatologiskdiagnose' and 'tumor_aarlig'. SUNDK tablenames
+  #' resolve to the file stem: 'CLL', 'LYFO', 'DaMyDa' (not 'SUNDK_CLL').
+  #' Observed in unique(all_dalycare_diagnoses$tablename): 'dimpatologiskdiagnose', 'diagnoser', 't_adm', 't_diag',
   #' 'BehandlingskontakterOgDiagnoser', 'doedsaarsag_3', 'CLL', 't_dodsaarsag_2',
   #' 'DaMyDa', 't_psyk_diag', 'LYFO', 'ADT_haendelser', 'tumor_aarlig', 'kontakter'.
   #' Re-run unique(all_dalycare_diagnoses$tablename) yourself before filtering --
   #' the source composition can change between releases.
-  #' NB 2026-09-14: table renamed from t_dalycare_diagnoses to
-  #' all_dalycare_diagnoses -- rename only, no change to logic or content.
   #' @examples
   #' load_dataset('all_dalycare_diagnoses', 'all_patients') #loads all DALY-CARE diagnoses
   #' PCD = all_dalycare_diagnoses %>%
@@ -57,7 +53,7 @@ filter_first_diagnosis = function(data, diagnosis = NULL, str_contains = TRUE, m
   #' str_contains T diagnosis contained, str_contains F diagnosis matches 
   #' multiple may contain "first" (defualt) or "both" or "all" for which all multiple diagnoses most be present 
   if(!exists('all_patients')){
-    load_dataset('all_patients') # NB 2026-09-15: renamed from patient
+    load_dataset('all_patients')
   }
   if(multiple == 'first'){
     if(str_contains){print('contains')

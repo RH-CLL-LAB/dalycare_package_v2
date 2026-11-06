@@ -15,16 +15,10 @@ view_diagnoses_all_distinct = function(){
   #'          diagnoses_all.diagnosis
   #'   FROM diagnoses_all;
   #'
-  #' NB 2026-09-14: the underlying table 'diagnoses_all' was renamed to
-  #' 'all_diagnoses_icd10' and its content narrowed (see
-  #' AENDRINGER_dalycare_package.md, F3e). It now contains ONLY sources with
-  #' native ICD-10 codes (SDS, SP, RKKP_CLL) -- SDS_PATO, RKKP_LYFO, and
-  #' RKKP_DaMyDa are excluded entirely, not just NA. `diagnosis` is never
-  #' null within this table; `diagnosis_raw` no longer exists. This function
-  #' otherwise stays semantically identical to the old view, but the
-  #' resulting distinct-diagnoses set is now smaller than before (missing
-  #' the three excluded sources) -- see F3e for whether that matters for
-  #' your analysis.
+  #' The underlying table is 'all_diagnoses_icd10'. It contains ONLY sources
+  #' with native ICD-10 codes (SDS, SP, SUNDK_CLL) -- SDS_PATO, SUNDK_LYFO and
+  #' SUNDK_DaMyDa are not in it. `diagnosis` is never null within this table.
+  #' The distinct-diagnoses set therefore does not include those three sources.
   #'
   #' @examples
   #' DX_DISTINCT = view_diagnoses_all_distinct()

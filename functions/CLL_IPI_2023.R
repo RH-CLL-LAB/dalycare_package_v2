@@ -12,7 +12,7 @@ CLL_IPI_2023 = function(data, Age = Age, Binet = Binet, B2M = B2M, IGHV = IGHV, 
   #' Bahlo et al. Lancet Onc 2016. 17:779-790
   #' da Cunha-Bang et al. Blood. 2016;128(17):2181-3.
   
-  warning('We recommend that you use CLL_IPI() instead. CLL_IPI_2023 only works on RKKP_CLL version 16 and lower')
+  warning('We recommend that you use CLL_IPI() instead. CLL_IPI_2023 only works on SUNDK_CLL version 16 and lower')
   print_color('\nBahlo et al. Lancet Onc 2016. 17:779-790\n', 'black')
   data %>% 
     mutate(TP53.ab = replace({{DEL17P}}, {{TP53.mut}} =='Yes', 'Yes')) %>% 

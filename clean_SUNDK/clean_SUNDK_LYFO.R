@@ -4,7 +4,7 @@ clean_SUNDK_LYFO = function(data){
   #' @author
   #' mikkel werling, thomas lacoppidan, christian brieghel
   #' 
-  #' @description Cleans (or translates) the dataset RKKP_LYFO. Works only for LYFO version 20 or higher. 
+  #' @description Cleans (or translates) the dataset SUNDK_LYFO. Works only for LYFO version 20 or higher. 
   #' Binary variables are encoded as "Yes" = 1 and "No" = 0. 
   #' Naming of variables is snake cased (spaces are replaced with _ and everything is lowercased if it is not an abbreviation)
   #' Some variables are recorded in multiple forms (registration, treatment, relapse). When this is the case, a suffix indicates 
@@ -23,11 +23,11 @@ clean_SUNDK_LYFO = function(data){
   #' 
   #' If patients are in W&W (as is often the case for FL and MZL), this is treated as 1st line of treatment.
   #' 
-  #' The documentation for this function does not contain all the information regarding the RKKP dataset.
-  #' If need be, check the documentation of the sourced RKKP data here: https://db-dokumentation-sundk.dk/Public/
+  #' The documentation for this function does not contain all the information regarding the SUNDK dataset.
+  #' If need be, check the documentation of the sourced SUNDK data here: https://db-dokumentation-sundk.dk/Public/
   #' 
   #' @examples
-  #' LYFO_CLEAN = SUNDK_LYFO %>% clean_SUNDK_LYFO() # NB 2026-09-17: raw table renamed from RKKP_LYFO to SUNDK_LYFO
+  #' LYFO_CLEAN = SUNDK_LYFO %>% clean_SUNDK_LYFO()
   #' @references 
   #' https://db-dokumentation-sundk.dk/Public/
   #' Arboe et al. CLEP. 2016 Oct 25:8:577-581
@@ -90,7 +90,7 @@ clean_SUNDK_LYFO = function(data){
                       "Rec_Hoejdosisbehandling",
                       "Rec_StereoidSomMonoterapi")
   
-  if(!exists('all_patients')){load_dataset('all_patients')} # NB 2026-09-15: renamed from patient
+  if(!exists('all_patients')){load_dataset('all_patients')}
   if(!exists('Codes_kommunekoder')){load_dataset('Codes_kommunekoder')}
   
   cols = colnames(data)
@@ -328,7 +328,7 @@ clean_SUNDK_LYFO = function(data){
               date_surgery_2nd_line = parse_sundk_date(Rec_Operationsdato),
               
               # NOTE on "Rec_AndenLymfomspecifik": 
-              # RKKPs documentation is wrong here. This is not high dosis treatment, but AB as is the case for the treatment variables.
+              # SUNDK's documentation is wrong here. This is not high dosis treatment, but AB as is the case for the treatment variables.
               # For example MZL are usually administered AB along their other treatment
               disease_specific_AB_2nd_line = Rec_AndenLymfomspecifik,
               

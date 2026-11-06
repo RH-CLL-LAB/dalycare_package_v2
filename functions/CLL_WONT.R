@@ -11,8 +11,8 @@ CLL_WONT = function(data, Age = Age, Binet = Binet, LDH = LDH, B2M = B2M, ALC = 
   #' LAB = load_biochemistry (labs = c(NPU.LYM, NPU.LDH)) %>% clean_lab_values()
   #' ALC = LAB %>% filter(NPU %in% NPU.LYM) %>% transmute(patientid, date_ALC = samplingdate, ALC = value2)
   #' LDH = LAB %>% filter(NPU %in% NPU.LDH) %>% transmute(patientid, date_LDH = samplingdate, LDH = value2)
-  #'   # Data preparation continuedâ€¦
-  #' RKKP_CLL_WITH_ALC_AND_LDH = SUNDK_CLL_CLEAN %>%
+  #'   # Data preparation continued...
+  #' SUNDK_CLL_WITH_ALC_AND_LDH = SUNDK_CLL_CLEAN %>%
   #'   left_join(ALC, by = 'patientid') %>%
   #'   left_join(LDH, by = 'patientid') %>%	
   #'   mutate(time_ALC = diff_days(Date_diagnosis, date_ALC),
@@ -24,7 +24,7 @@ CLL_WONT = function(data, Age = Age, Binet = Binet, LDH = LDH, B2M = B2M, ALC = 
   #'   slice(1) %>%
   #'   ungroup() 
   #'     # CLLWONT calculation
-  #' RKKP_CLL_WITH_ALC_AND_LDH %>%  CLL_WONT() %>% pull(CLLWONT) %>% table()
+  #' SUNDK_CLL_WITH_ALC_AND_LDH %>%  CLL_WONT() %>% pull(CLLWONT) %>% table()
   #' @references 
   #' Brieghel et al. Eur J Haematol. May 2022;108(5):369-378.
   #' Brieghel et al. Blood Adv. 2024;8(16):4449-56.

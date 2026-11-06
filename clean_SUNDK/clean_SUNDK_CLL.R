@@ -1,5 +1,5 @@
-# This script cleans RKKP_CLL version 18 or higher
-## See full RKKP documentation for the "CLL" register at https://db-dokumentation-sundk.dk/Public/
+# This script cleans SUNDK_CLL version 18 or higher
+## See full SUNDK documentation for the "CLL" register at https://db-dokumentation-sundk.dk/Public/
 ## Depends on tidyverse and lubridate 
 ## Sys.Date() # "2024-08-24"
 ## Authors: Mikkel Werling, Thomas Lacoppidan and Christian Brieghel
@@ -10,7 +10,7 @@ clean_SUNDK_CLL = function(data){
   #' @author
   #' thomas lacoppidan, mikkel werling, christian brieghel
   #' 
-  #' @description Cleans (or translates) the dataset RKKP_CLL aka the Danish CLL register (da Cunha-Bang et al. CLEP. 2016). 
+  #' @description Cleans (or translates) the dataset SUNDK_CLL aka the Danish CLL register (da Cunha-Bang et al. CLEP. 2016). 
   #' Works only for CLL version 18 or higher. 
   #' 
   #' Binary variables are encoded as "Yes" = 1 and "No" = 0. 
@@ -23,19 +23,19 @@ clean_SUNDK_CLL = function(data){
   #' 
   #' @note 
   #' Information on death and survival status is found in variables time_death_fu and dead.
-  #' Most updated information on death and survival status should be extracted elsewhere (i.e. the "all_patients" table, formerly "patient").
+  #' Most updated information on death and survival status should be extracted elsewhere (i.e. the "all_patients" table).
   #' 
-  #' The documentation for this function does not contain all the information regarding the RKKP dataset.
-  #' If need be, check the documentation of the sourced RKKP data here: https://db-dokumentation-sundk.dk/Public/
+  #' The documentation for this function does not contain all the information regarding the SUNDK dataset.
+  #' If need be, check the documentation of the sourced SUNDK data here: https://db-dokumentation-sundk.dk/Public/
   #' 
   #' @examples
-  #'SUNDK_CLL_CLEAN = SUNDK_CLL %>% clean_SUNDK_CLL() # NB 2026-09-17: raw table renamed from RKKP_CLL to SUNDK_CLL
+  #'SUNDK_CLL_CLEAN = SUNDK_CLL %>% clean_SUNDK_CLL()
   #'
   #'@references 
   #'https://db-dokumentation-sundk.dk/Public/
   #'da Cunha-Bang et al. CLEP. 2016
   
-  load_dataset('all_patients') # NB 2026-09-15: renamed from patient
+  load_dataset('all_patients')
   data %>%
     left_join(all_patients, 'patientid') %>% #
     mutate(across(c(KMregisdoed ,Reg_FAMCLL,  Reg_KnoglemarvsUndersoegelse, Reg_ULSCANNING , Reg_CTSCANNING , Reg_LYMFOCYTFORDOBLIN ,
@@ -220,7 +220,7 @@ clean_SUNDK_CLL = function(data){
               CCI = Charlson_Index) %>% 
     tidyr::unite(treatment_type, flud, chlor, benda, other_c, no_c, immuno, ibr, acala, ide, ven, sep = '-', na.rm = T) %>% 
     tidyr::unite(treatment_2nd_line_type, flud_2nd_line, chlor_2nd_line, benda_2nd_line, other_c_2nd_line, no_c_2nd_line, immuno_2nd_line,
-          # ibr, acala, ide, ven, # found in RKKP_CLL, but not ours
+          # ibr, acala, ide, ven, # found in SUNDK_CLL, but not ours
           sep = '-', na.rm = T) %>% 
     
     mutate(date_death_fu = if_else(is.na(date_death), date_last_fu, date_death),

@@ -27,13 +27,10 @@ transform_2_ERIC = function(data, write_xlsx = FALSE, pseudononymize = FALSE){
   cohort = data %>% pull(patientid) %>% unique()
   
   #### Data ####
-  # NB 2026-09-14: diagnoses_all -> all_diagnoses_icd10, t_dalycare_diagnoses
-  # -> all_dalycare_diagnoses (rename only, no logic change for the latter).
-  # all_diagnoses_icd10 now excludes SDS_PATO/SUNDK_LYFO/SUNDK_DaMyDa rows
-  # entirely -- see the Comorbidities_eric2/3/4 blocks below, which depend on
-  # it and are directly affected.
+  # all_diagnoses_icd10 does not contain SDS_PATO/SUNDK_LYFO/SUNDK_DaMyDa rows --
+  # see the Comorbidities_eric2/3/4 blocks below, which depend on it.
   load_dataset(c('LAB_IGHVIMGT', 'all_patients', 'all_dalycare_diagnoses', 'all_diagnoses_icd10', 'SDS_t_dodsaarsag_2', 'CLL_TREAT_CLEAN'), cohort) #, replaced with date_treatment_2nd_line 14/10-24 -- NB 2026-09-15: 'patient' renamed to 'all_patients'
-  load_dataset(c('SUNDK_CLL', 'SUNDK_LYFO', 'all_dalycare_diagnoses')) # NB 2026-09-17: renamed from RKKP_*
+  load_dataset(c('SUNDK_CLL', 'SUNDK_LYFO', 'all_dalycare_diagnoses'))
   # Note that CLL_TREAT_CLEAN only covers Eastern and Southern Denmark
 
   extra_diagnoses = all_dalycare_diagnoses %>%
@@ -137,14 +134,12 @@ transform_2_ERIC = function(data, write_xlsx = FALSE, pseudononymize = FALSE){
            Diagnosis = ifelse(is.na(Diagnosis), diagnosis, Diagnosis)) %>% 
     select(-date_diagnosis, -diagnosis)
   
-  # NB 2026-09-14: Comorbidities_eric2/3/4 read all_diagnoses_icd10_subset
-  # for their ERIC "comment" fields, incl. "Comment on other malignant
-  # neoplasms" below -- second malignancies confirmed only via pathology
-  # bank (SDS_PATO) or the lymphoma/myeloma registries (RKKP_LYFO/DaMyDa)
-  # will now be silently absent from these ERIC comments, since those
-  # sources are no longer in the table at all. This is the same open
-  # question as AENDRINGER F3c/F3e: needs researcher sign-off before an
-  # ERIC submission relies on it, not a decision for the package to make.
+  # Comorbidities_eric2/3/4 read all_diagnoses_icd10_subset for their ERIC
+  # "comment" fields, incl. "Comment on other malignant neoplasms" below.
+  # Second malignancies confirmed only via the pathology bank (SDS_PATO) or the
+  # lymphoma/myeloma registries (SUNDK_LYFO/DaMyDa) are absent from these
+  # comments, since those sources are not in the table. This needs researcher
+  # sign-off before an ERIC submission relies on it.
   Comorbidities_eric2 = all_diagnoses_icd10_subset %>%
     # filter(patientid %in% cohort_cll_sll$patientid) %>% # 6/12-24
     left_join(cohort_cll_sll, 'patientid') %>%

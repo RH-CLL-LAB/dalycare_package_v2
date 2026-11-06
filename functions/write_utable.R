@@ -5,7 +5,7 @@ write_utable <- function(unitabel, path = path, table_n = '1'){
   #' christian brieghel
   #' @description
   #' Writes utables as publishable csv-files to your work directory
-  #' table_n = 1, Writes table â€œTable_1â€ etc.
+  #' table_n = 1, Writes table "Table_1" etc.
   #' @examples 
   #' getwd()
   #' CLL_clean = SUNDK_CLL %>% clean_SUNDK_CLL()

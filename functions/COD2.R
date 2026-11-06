@@ -57,7 +57,7 @@ COD2  = function(data){
     unite(all_causes, c("c_dodtilgrundl_acme", "c_dod_1a",    "c_dod_1b", "c_dod_1c", "c_dod_1d"), sep = '|') %>% # 31-05-2023 - if death from infection is registered, this will overrule other causes of death, making infection highest in the hieraki
     mutate(inf = ifelse(grepl(death.inf %>% paste0(collapse = '|'), all_causes), '1',0)) %>%
     left_join(data %>% select(patientid, c_dodtilgrundl_acme, c_dod_1a,    c_dod_1b, c_dod_1c, c_dod_1d), by = 'patientid') %>%  
-    mutate(cause_hieraki = c_dod_1d, #17-07-2023: hieraki taking death cause d if present. If not, then c. If c not present, then b. If b not present then a. This definition does not include "tilgrundlÃ¦ggende". 
+    mutate(cause_hieraki = c_dod_1d, #17-07-2023: hieraki taking death cause d if present. If not, then c. If c not present, then b. If b not present then a. This definition does not include "tilgrundlæggende". 
            cause_hieraki = ifelse(cause_hieraki == "", c_dod_1c, cause_hieraki),
            cause_hieraki = ifelse(cause_hieraki == "", c_dod_1b, cause_hieraki),
            cause_hieraki = ifelse(cause_hieraki == "", c_dod_1a, cause_hieraki)) %>%  

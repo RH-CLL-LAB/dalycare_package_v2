@@ -31,8 +31,8 @@ right_truncation = function(data, date_event = NULL, date_truncation = NULL, dat
   #”Error in plot.new()” may be rectified by: par(mar=c(1,1,1,1))
   
   print_color('Right truncates date of last followup as date_event_death_fu and calculates time_to_event\n', 'black')
-  # NB 2026-09: status in patient can now be NA (no death source covers patient).
-  # Propagates as NA in output -- not silently dropped. Decide upstream.
+  # status in all_patients can be NA (no death source covers the patient).
+  # Propagates as NA in the output.
   n_na_status = sum(is.na(data$status))
   if(n_na_status > 0){
     warning(n_na_status, ' row(s) have status == NA. This will propagate as NA in output.',

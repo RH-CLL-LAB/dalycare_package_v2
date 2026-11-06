@@ -64,13 +64,10 @@ NMI = function(data, patientid, date_diagnosis) {
   ATC_statins = '^C10AA'
   
   #load atc and icd10 data
-  # NB 2026-09-14: all_diagnoses_icd10 (formerly diagnoses_all) no longer
-  # contains SDS_PATO/RKKP_LYFO/RKKP_DaMyDa rows at all. Several of this
-  # score's cancer-defining ICD10 groups (leukemia, bladder, breast,
-  # prostate, brain/meninges, bronchus, cancer_unknown) may historically
-  # have relied on those sources -- expect silently lower scores for
-  # patients whose relevant diagnoses only exist there. Flagged, not fixed
-  # -- see AENDRINGER_dalycare_package.md F3e.
+  # all_diagnoses_icd10 does not contain SDS_PATO, SUNDK_LYFO or SUNDK_DaMyDa.
+  # Cancer-defining ICD10 groups (leukemia, bladder, breast, prostate,
+  # brain/meninges, bronchus, cancer_unknown) are therefore not found for
+  # patients whose relevant diagnoses only exist in those sources.
   cohort = data$patientid %>% unique() %>% sort
   load_dataset(c('SDS_epikur', 'all_diagnoses_icd10'), cohort)
 
@@ -81,7 +78,7 @@ NMI = function(data, patientid, date_diagnosis) {
                           distinct(),
                         all_diagnoses_icd10_subset %>%
                           filter(tablename != 'dimpatologiskdiagnose') %>%
-                          filter_str_detect(tablename, c('RKKP_', 'DaMyDa'), negate = T) %>% 
+                          filter_str_detect(tablename, c('CLL', 'LYFO', 'DaMyDa'), negate = T) %>% 
                           filter_str_detect(diagnosis, '^D') %>% 
                           transmute(patientid, date = date_diagnosis,  type = 'icd10' , code = diagnosis) %>% 
                           distinct()), by = 'patientid') %>% 
