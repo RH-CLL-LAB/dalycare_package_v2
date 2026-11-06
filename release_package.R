@@ -49,7 +49,8 @@ release_package = function(date = format(Sys.Date(), '%Y%m%d'), dry_run = FALSE)
       src = file.path(curr_path, f)
       dst = file.path(old_path, f)
       dir.create(dirname(dst), recursive = TRUE, showWarnings = FALSE)
-      file.copy(src, dst)
+      if(!file.copy(src, dst))
+        stop('Could not archive ', f, ' to ', dst, '. Nothing in current/ has been changed.', call. = FALSE)
     }
     cat('  Archived', length(curr_files), 'files.\n')
   } else {
@@ -64,7 +65,8 @@ release_package = function(date = format(Sys.Date(), '%Y%m%d'), dry_run = FALSE)
     src = file.path(dev_path, f)
     dst = file.path(curr_path, f)
     dir.create(dirname(dst), recursive = TRUE, showWarnings = FALSE)
-    file.copy(src, dst, overwrite = TRUE)
+    if(!file.copy(src, dst, overwrite = TRUE))
+      stop('Could not copy ', f, ' to current/. The release is incomplete; the previous version is in ', old_path, call. = FALSE)
   }
   cat('  Promoted', length(dev_files), 'files.\n')
 
@@ -83,5 +85,3 @@ release_package = function(date = format(Sys.Date(), '%Y%m%d'), dry_run = FALSE)
   cat("  use_version('", date, "')\n", sep='')
 }
 
-## Run immediately if sourced directly
-release_package()
