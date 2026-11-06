@@ -13,6 +13,27 @@ table_info()                             # list documented tables
 table_info('all_patients')               # purpose, sources, one row, columns, caveats
 ```
 
+## Data dictionaries
+
+- SDS: <https://www.esundhed.dk/Dokumentation?rid=5&tid=7>
+- SUNDK: <https://www.db-dokumentation-sundk.dk/Public/Default.aspx?ReturnUrl=%2f&db2=-9>
+- SP: none exists. Use `table_info()` for the documented tables, or `names()` on a loaded table to see its columns.
+
+## Contents
+
+| Path | Content |
+|---|---|
+| `load_dalycare_package.R`, `load_functions.R`, `help_info.R` | Entry point, loading of functions and lookup tables, help text |
+| `functions/` | Analysis and helper functions (`load_dataset()`, comorbidity indices, prognostic indices, CTCAE, plots, ...) |
+| `clean_SUNDK/`, `clean_SDS/` | Cleaning functions for the SUNDK registries and the pathology data |
+| `core_scripts/` | Logic for the derived tables built by `dalycare_core` (comorbidity and adverse events, all_IPI, ...) |
+| `table_info/` | One YAML file per documented table, read by `table_info()` |
+| `docs/` | Longer documentation of derived tables and the help file for the package |
+| `tests/test_package.R` | For package developers only: tests to run on the development version before release |
+| `release_package.R` | For package developers only: promotes `development/` to `current/` and archives the previous release |
+
+The pipeline that produces the import tables is `dalycare_pipeline`; the derived (core) tables are built by `dalycare_core`.
+
 ## Joining tables
 
 Most released tables have a `patientid` column. Some tables (SDS and SP) do not: they are
@@ -48,27 +69,6 @@ diag_with_patient = SDS_t_diag %>%
 
 Some tables are reference or lookup tables with no patient data (for example
 `SDS_koder`, `SDS_laegemiddel`, `SDS_dimnpu`).
-
-## Data dictionaries
-
-- SDS: <https://www.esundhed.dk/Dokumentation?rid=5&tid=7>
-- SUNDK: <https://www.db-dokumentation-sundk.dk/Public/Default.aspx?ReturnUrl=%2f&db2=-9>
-- SP: none exists. Use `table_info()` for the documented tables, or `names()` on a loaded table to see its columns.
-
-## Contents
-
-| Path | Content |
-|---|---|
-| `load_dalycare_package.R`, `load_functions.R`, `help_info.R` | Entry point, loading of functions and lookup tables, help text |
-| `functions/` | Analysis and helper functions (`load_dataset()`, comorbidity indices, prognostic indices, CTCAE, plots, ...) |
-| `clean_SUNDK/`, `clean_SDS/` | Cleaning functions for the SUNDK registries and the pathology data |
-| `core_scripts/` | Logic for the derived tables built by `dalycare_core` (comorbidity and adverse events, all_IPI, ...) |
-| `table_info/` | One YAML file per documented table, read by `table_info()` |
-| `docs/` | Longer documentation of derived tables and the help file for the package |
-| `tests/test_package.R` | For package developers only: tests to run on the development version before release |
-| `release_package.R` | For package developers only: promotes `development/` to `current/` and archives the previous release |
-
-The pipeline that produces the import tables is `dalycare_pipeline`; the derived (core) tables are built by `dalycare_core`.
 
 ## Release (for package developers only)
 
