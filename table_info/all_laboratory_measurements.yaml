@@ -43,6 +43,18 @@ cleaning:
   - "Placeholders without information (-, --, ?, %, +++): the row is dropped; the number of dropped rows is logged on each run."
   - "Unit conversion to a common unit in c_unit is only done for ALB, IGG, IGA, IGM, AFP and TNI. For other analysis groups units are only harmonized as text (case/notation variants)."
   - "analysisgroup comes from the NPU lookup CODES_NPU2PERSIMUNE. Coverage is incomplete."
+  - "Sources: import/SDS/<date>/SDS_laboratorieproevesvar.parquet and import/SP/<date>/SP_AlleProvesvar.parquet (no oe in the SP filename)."
+  - "Dedup: SDS and SP are combined. An SP row is kept only if its (patientid, samplingdate, samplingtime, analysiscode, value) does not exist in the SDS part."
+  - "Numeric pattern: a value is numeric if it matches ^-?[0-9]+(,[0-9]+)?$ (Danish comma) or ^-?[0-9]+\\.[0-9]+$ (period decimal, any number of digits)."
+  - "Operator prefix in text (>=, <=, >, <) is checked longest first. Rows containing KOMM (case-sensitive) are excluded from this parsing."
+  - "Known gap in the text mapping: Gruppesvar, Paavist, Erstattet, Aflyst, Gruppe and KOMM are not mapped to c_value_text."
+  - "analysisgroup uses C_AnalysisGroup only from the lookup (same as the previous production table). Whether C_New_AnalysisGroup should take priority is an open question; analysisgroup_new carries C_New_AnalysisGroup."
+  - "Group-specific unit conversions (c_value and c_unit), applied only when the unit is in the umol/l family: ALB x 1/15.05 to g/L, IGG x 0.150 to g/L, IGA x 0.160 to g/L, IGM x 0.971 to g/L. AFP when the unit is in the kU/L family x 0.7 to ug/L. TNI when the unit is not already ng/L x 1000 to ng/L."
+  - "Threshold-based result interpretation (fills c_value_text only where it is still empty): SMITHIGG and CARDIOLIPINIGG are positive above 10, inconclusive from 7 to 10 and negative below 7. CARDIOLIPINIGM is positive above 10 and negative at or below 10. C3 and C4 get a fixed reference text."
+  - "B2M (never converted in the previous production table) and CKMB (cosmetic unit text) are not converted."
+  - "Resultvalidation is not captured."
+  - "The table reproduces the previous production table, except for its operator-parsing order bug (> was checked before >=), which is not copied. Period decimals (for example 10.0) are numeric, and the text ikke  taget (double space) has its own rule."
+  - "SDS Operator is the primary source for c_operator. SDS never embeds a comparison symbol in value. SP has no Operator column and does use >= as text, so the text-prefix rule is only needed for SP."
 caveats:
   - "SP results exist only for patients seen in SP, and an SP row is only kept when SDS does not already have it. Result coverage therefore differs between patients and over time, and SP patients are overrepresented. For analyses of the whole cohort, do not assume the same laboratory coverage for every patient; check how many patients have SP data (see patient_data_overview, column SP). For studies across regions, use SDS_laboratorieproevesvar instead; its coverage is not uniform across regions either, but it is the best available."
   - About 90% of SP rows have no matching SDS row. The likely cause is that SP does not report all results to SDS.
