@@ -15,7 +15,7 @@ table_info('all_patients')               # purpose, sources, one row, columns, c
 
 ## Joining tables
 
-Most released tables have a `patientid` column. Some SDS tables do not: they are
+Most released tables have a `patientid` column. Some tables (SDS and SP) do not: they are
 linked to a patient through a key in a parent table. The links are listed below.
 
 | Table (no patientid) | Key in table | Parent (has patientid) | Key in parent | Notes |
@@ -35,6 +35,7 @@ linked to a patient through a key in a parent table. The links are listed below.
 | `SDS_t_psyk_sksopr` | `v_recnum` | `SDS_t_psyk_adm` | `k_recnum` | LPR2 psychiatry |
 | `SDS_t_psyk_sksube` | `v_recnum` | `SDS_t_psyk_adm` | `k_recnum` | LPR2 psychiatry |
 | `SDS_t_psyk_udtilsgh` | `v_recnum` | `SDS_t_psyk_adm` | `k_recnum` | LPR2 psychiatry |
+| `SP_Journalnotater_Del2` | `note_id` | `SP_Journalnotater_Del1` | `note_id` | SP clinical notes |
 
 Example (LPR2 diagnoses with the patient id):
 
