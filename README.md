@@ -23,11 +23,13 @@ table_info('all_patients')               # purpose, sources, one row, columns, c
 | `core_scripts/` | Logic for the derived tables built by `dalycare_core` (comorbidity and adverse events, all_IPI, ...) |
 | `table_info/` | One YAML file per documented table, read by `table_info()` |
 | `docs/` | Longer documentation of derived tables and the help file for the package |
-| `tests/test_package.R` | Tests to run on the development version before release |
-| `release_package.R` | Promotes `development/` to `current/` and archives the previous release |
+| `tests/test_package.R` | For package developers only: tests to run on the development version before release |
+| `release_package.R` | For package developers only: promotes `development/` to `current/` and archives the previous release |
 
 The pipeline that produces the import tables is `dalycare_pipeline`; the derived (core) tables are built by `dalycare_core`.
 
-## Release
+## Release (for package developers only)
+
+This section is only relevant if you maintain the package. Users load the package with `load_dalycare_package.R` and never run the tests or the release.
 
 Run `tests/test_package.R` on the development version, then `release_package()` to promote it to `current/` (the previous `current/` is archived under `old/<date>/`).
