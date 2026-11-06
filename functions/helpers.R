@@ -7,9 +7,8 @@
 
 parse_sundk_date = function(x){
   #' @description
-  #' robustly parses SUNDK date columns whose raw format/type has changed
-  #' silently between deliveries (e.g. character dd-mm-yyyy in one delivery,
-  #' ISO character or Date/POSIXct in another). Tries, per value: pass through
+  #' Parses SUNDK date columns whose format varies between deliveries
+  #' (e.g. character dd-mm-yyyy, ISO character or Date/POSIXct). Tries, per value: pass through
   #' if already Date/POSIXct, else ISO (as_date), else Danish dmy.
   #' @examples
   #' parse_sundk_date(c("2026-09-17", "17-09-2026", NA))

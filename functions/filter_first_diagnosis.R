@@ -12,7 +12,7 @@ filter_first_diagnosis = function(data, diagnosis = NULL, str_contains = TRUE, m
   #' this date admission diagnosis will define their first diagnosis
   #' Seriously consider filtering all_dalycare_diagnoses based on tablename first:
   #' PATO tablenames are 'dimpatologiskdiagnose' and 'tumor_aarlig'. SUNDK tablenames
-  #' resolve to the file stem: 'CLL', 'LYFO', 'DaMyDa' (NOT 'SUNDK_CLL').
+  #' resolve to the file stem: 'CLL', 'LYFO', 'DaMyDa' (not 'SUNDK_CLL').
   #' Observed in unique(all_dalycare_diagnoses$tablename): 'dimpatologiskdiagnose', 'diagnoser', 't_adm', 't_diag',
   #' 'BehandlingskontakterOgDiagnoser', 'doedsaarsag_3', 'CLL', 't_dodsaarsag_2',
   #' 'DaMyDa', 't_psyk_diag', 'LYFO', 'ADT_haendelser', 'tumor_aarlig', 'kontakter'.

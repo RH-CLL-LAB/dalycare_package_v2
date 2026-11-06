@@ -7,7 +7,7 @@ ATC_polypharmacy = function(data,
   #' @author
   #' christian brieghel
   #' @description
-  #' Calculates number of 1st to 5th level ATC codes per patient and defines polypharmacy as â‰¥5 drug classes.
+  #' Calculates number of 1st to 5th level ATC codes per patient and defines polypharmacy as >=5 drug classes.
   #' @note 
   #' 'level' argument changes the ATC level. Eg. Penicillins, level = 4: "J01CE" 
   #' @examples

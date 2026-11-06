@@ -4,7 +4,7 @@ rIPSSWM = function(data, Age = age_diagnosis, B2M = B2M_diagnosis, LDH = LDH_dia
   #' @author
   #' christian brieghel
   #' @description
-  #' Calculates rIPSSWM risk for WaldenstrÃ¶m macroglobulinemia (WM) and LPL as class factor.
+  #' Calculates rIPSSWM risk for Waldenström macroglobulinemia (WM) and LPL as class factor.
   #' Updated to LYFO v20 and higher (>2023)
   #' @examples
   #' LYFO_clean = SUNDK_LYFO %>% clean_SUNDK_LYFO()

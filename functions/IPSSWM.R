@@ -4,7 +4,7 @@ IPSSWM = function(data){
   #' @author
   #' christian brieghel
   #' @description
-  #' Calculates IPSSWM risk for WaldenstrÃ¶m macroglobulinemia (WM) and LPL as class factor.
+  #' Calculates IPSSWM risk for Waldenström macroglobulinemia (WM) and LPL as class factor.
   #' Updated to LYFO v20 and higher (>2023)
   #' @examples
   #' LYFO_clean = SUNDK_LYFO %>% clean_SUNDK_LYFO()

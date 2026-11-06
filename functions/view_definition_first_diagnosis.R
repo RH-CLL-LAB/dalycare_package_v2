@@ -12,7 +12,7 @@ view_definition_first_diagnosis = function(){
   #' For each patient, picks ONE diagnosis row from all_dalycare_diagnoses,
   #' ranked first by source priority (PATO=1, SUNDK=2, SDS=3, SP=4,
   #' PERSIMUNE=5, else=6), then by earliest date_diagnosis among rows tied
-  #' on that priority. This is NOT the same selection rule as
+  #' on that priority. This is not the same selection rule as
   #' filter_first_diagnosis(), which currently ranks by date alone.
   #'
   #' Also flags patients whose selected first diagnosis is contradicted by

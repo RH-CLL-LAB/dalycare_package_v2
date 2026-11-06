@@ -11,7 +11,7 @@ CLL_WONT = function(data, Age = Age, Binet = Binet, LDH = LDH, B2M = B2M, ALC = 
   #' LAB = load_biochemistry (labs = c(NPU.LYM, NPU.LDH)) %>% clean_lab_values()
   #' ALC = LAB %>% filter(NPU %in% NPU.LYM) %>% transmute(patientid, date_ALC = samplingdate, ALC = value2)
   #' LDH = LAB %>% filter(NPU %in% NPU.LDH) %>% transmute(patientid, date_LDH = samplingdate, LDH = value2)
-  #'   # Data preparation continuedâ€¦
+  #'   # Data preparation continued...
   #' SUNDK_CLL_WITH_ALC_AND_LDH = SUNDK_CLL_CLEAN %>%
   #'   left_join(ALC, by = 'patientid') %>%
   #'   left_join(LDH, by = 'patientid') %>%	

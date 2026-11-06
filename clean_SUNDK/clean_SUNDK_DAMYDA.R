@@ -72,10 +72,10 @@ clean_SUNDK_DAMYDA = function(data){
                                `9734` = 'DC902'),
               subtype_text = recode(Reg_Diagnose, 
                                     `9730` = 'Smoldering myelomatose',
-                                    `9731` = 'SolitÃƒÂ¦rt ossÃƒÂ¸st plasmacytom', #
+                                    `9731` = 'Solitært ossøst plasmacytom', #
                                     `9732` = 'Myelomatose',
-                                    `9733` = 'PlasmacelleleukÃƒÂ¦mi',
-                                    `9734` = 'SolitÃƒÂ¦rt myelom (ekstraossÃƒÂ¸st)',
+                                    `9733` = 'Plasmacelleleukæmi',
+                                    `9734` = 'Solitært myelom (ekstraossøst)',
                                     DD472= 'MGUS'),
               subtype_short = recode(Reg_Diagnose, 
                                      `9730` = 'SMM',
@@ -99,7 +99,7 @@ clean_SUNDK_DAMYDA = function(data){
                               `1082` = 'Region Midt',
                               `1083` = 'Region Syd',
                               `1084` = 'Region Hovedstad',
-                              `1085` = 'Region SjÃƒÂ¦lland',
+                              `1085` = 'Region Sjælland',
                               `1099`  = 'Ukendt'),
               hospital_id = recode_factor(Reg_OrganisationKode_Shak,
                                           `1301101` = 'RH',
@@ -309,7 +309,7 @@ clean_SUNDK_DAMYDA = function(data){
               # complications at 1st line 
               #Note: This is during/after 1st line? Criteria to start relaps/2nd line treatment according to 'Registervejledning', which can also be found for SB and FU? EEP
               complication_mspike_increasinf_p_1st_line = ifelse(PB_Manifestekomp_MKomp =='Y','Yes',NA), # 	Stigende M-komponent, manifest kompl. (from RKKP-docu) - CB 
-              complication_mspike_hypercalcimia_1st_line = ifelse(PB_Manifestekomp_Hypercal =='Y','Yes',NA), #HypercalcÃƒÂ¦mi (klin betydende),manifest kompl. 
+              complication_mspike_hypercalcimia_1st_line = ifelse(PB_Manifestekomp_Hypercal =='Y','Yes',NA), #Hypercalcæmi (klin betydende),manifest kompl. 
               complication_osteofoci_1st_line = ifelse(PB_Manifestekomp_OsteoFoci =='Y','Yes',NA),
               complication_MTS_1st_line = ifelse(PB_Manifestekomp_MedulTvaer =='Y','Yes',NA),
               complication_extramedullary_myeloma_1st_line = ifelse(PB_Manifestekomp_EkstraMedul =='Y','Yes',NA),

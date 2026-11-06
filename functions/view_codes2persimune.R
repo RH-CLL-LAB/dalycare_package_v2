@@ -24,7 +24,7 @@ view_codes2persimune = function(){
   #' here exactly as written, not "fixed", since we don't know if that was
   #' intentional.
   #'
-  #' lookup_tables columns are NOT lowercased by load_dataset() -- column names below are
+  #' lookup_tables columns are not lowercased by load_dataset() -- column names below are
   #' written exactly as the SQL view's quoted identifiers. Verify against
   #' the actual delivered CODES_NPU2PERSIMUNE.csv header if this errors.
   #'
