@@ -90,8 +90,7 @@ CLL_CI = function(data, patientid, date_diagnosis = date_diagnosis) {
     left_join(bind_rows(SDS_epikur_subset %>%
                           transmute(patientid, date = eksd,  type = 'atc', code = atc) %>%
                           distinct(),
-                        # all_diagnoses_icd10 does not contain SDS_PATO, SUNDK_LYFO or
-                        # SUNDK_DaMyDa, so these filters only matter for the SUNDK CLL rows.
+                        # all_diagnoses_icd10 does not contain SDS_PATO, SUNDK_LYFO or SUNDK_DaMyDa.
                         all_diagnoses_icd10_subset %>%
                           filter(tablename != 'dimpatologiskdiagnose') %>%
                           filter_str_detect(tablename, c('RKKP_', 'DaMyDa'), negate = T) %>%
