@@ -1,0 +1,9 @@
+name: SDS_tumor_aarlig
+status: RELEASED
+former_name: "SDS_t_tumor"
+purpose: >-
+  Import table (former name SDS_t_tumor).
+sources: []
+caveats:
+  - "General rules for SDS tables: see table_info('SDS')."
+  - "Suffix letters are missing in this table, meaning that e.g. DC830B (lymphoplasmacytic lymphoma) turns into DC830 (small lymphocytic lymphoma)."

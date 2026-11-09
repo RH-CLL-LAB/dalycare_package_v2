@@ -1,0 +1,14 @@
+name: SP
+status: RELEASED
+former_name: ""
+purpose: >-
+  Source documentation for the SP (Sundhedsplatformen) import tables, e.g.
+  SP_ADT_haendelser, SP_BehandlingskontakterOgDiagnoser and SP_AdministreretMedicin.
+  These are raw import tables read with load_dataset().
+  Import tables are stored in dated folders (import/SP/DATE/). use_version('YYYYMMDD') reads the delivery that was current on that date.
+  There is no data dictionary for SP. Use table_info() for the documented tables,
+  or names() on a loaded table to see its columns.
+sources: []
+caveats:
+  - "Column names are lowercased by load_dataset()."
+  - "SP delivers every datetime with a UTC offset (+00:00 or Z). The pipeline treats the offset as nominal, i.e. the clock time is Danish local time and the offset is removed without conversion. This has not been confirmed with SP."

@@ -1,0 +1,11 @@
+name: SUNDK_DaMyDa
+status: RELEASED
+former_name: "RKKP_DaMyDa"
+purpose: >-
+  SUNDK DaMyDa registry import table (formerly RKKP_DaMyDa).
+sources: []
+columns:
+  CPR_Status: "CPR vital status: 90 dead, 80 emigrated, 70 disappeared, blank alive. Sparsely filled."
+caveats:
+  - "General rules for SUNDK tables: see table_info('SUNDK')."
+  - "CPR_Status is delivered but sparsely filled, so some emigrated patients may not be identified. Dates with status 80 or 70 are excluded from all_death_dates."

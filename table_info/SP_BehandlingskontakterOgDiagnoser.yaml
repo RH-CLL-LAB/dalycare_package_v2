@@ -1,0 +1,9 @@
+name: SP_BehandlingskontakterOgDiagnoser
+status: RELEASED
+former_name: ""
+purpose: >-
+  Import table from SP with contacts and diagnoses.
+sources: []
+caveats:
+  - "General rules for SP tables: see table_info('SP')."
+  - "Contains contacts dated in the future (probably planned visits). Rows dated after today are removed when all_dalycare_diagnoses is built, but they are present in the raw import table."

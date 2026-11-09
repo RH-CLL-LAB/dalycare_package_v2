@@ -21,3 +21,4 @@ columns:
 caveats:
   - "The coverage period differs between the sources (SDS, SP, SUNDK), so do not assume the same period for all of them."
   - "Suffix letters are missing from t_tumor_aarlig, meaning that e.g. DC830B (lymphoplasmacytic lymphoma) turns into DC830 (small lymphocytic lymphoma)."
+  - "Diagnoses dated after today (for example future SP contacts) are removed when the table is built (MAX_DIAGNOSIS_DATE)."

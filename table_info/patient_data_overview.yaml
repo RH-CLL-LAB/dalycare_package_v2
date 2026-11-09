@@ -23,3 +23,4 @@ columns:
   date_death_fu_all_sources: ""
 caveats:
   - "The coverage period differs between the sources (SDS, SP, SUNDK), so do not assume the same period for all of them."
+  - "date_death_fu_all_sources is the latest delivery date among the sources a patient appears in (capped at death date for the dead). Use it to follow events when SP or SUNDK is more up to date than SDS. It is different from date_death_fu in all_patients, which is based on SDS only."

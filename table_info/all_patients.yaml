@@ -22,3 +22,6 @@ columns:
   date_death_fu: "death date if dead, shared SDS follow-up date if alive"
 caveats:
   - "The coverage period differs between the sources (SDS, SP, SUNDK), so do not assume the same period for all of them."
+  - "status and date_death_fu are based on SDS only. A patient who is not in the SDS patient table, for example a new patient contributed only by SP or SUNDK, gets status NA and date_death_fu NA (not assumed alive)."
+  - "For patients in SDS who are alive, date_death_fu is one shared follow-up date (the latest death date seen in the SDS death sources). If SP or SUNDK data are more recent than SDS, events can occur after date_death_fu. date_death_fu is a column in this table: use it as the end of follow-up when SDS is the most up-to-date source."
+  - "To follow events when SP or SUNDK is the most up-to-date source, use date_death_fu_all_sources in patient_data_overview instead (latest delivery date among the sources the patient appears in, capped at the death date for the dead)."

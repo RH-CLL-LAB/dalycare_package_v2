@@ -1,0 +1,9 @@
+name: SDS_fctpatologiskprocedure
+status: RELEASED
+former_name: "SDS_t_pato, SDS_t_konk_ny"
+purpose: >-
+  Part of the new SDS data model for the Pathology Register (PATO), not 1:1 with the old tables.
+  Contains procedure information (codes 0/1/2, see codebook). Joined with SDS_fctrekvisition on dw_ek_rekvisition (replaces k_rekvnr).
+sources: []
+caveats:
+  - "General rules for SDS tables: see table_info('SDS')."

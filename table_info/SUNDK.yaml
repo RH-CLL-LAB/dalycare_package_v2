@@ -1,0 +1,14 @@
+name: SUNDK
+status: RELEASED
+former_name: "RKKP"
+purpose: >-
+  Source documentation for the SUNDK registry import tables (SUNDK_CLL, SUNDK_LYFO and
+  SUNDK_DaMyDa, formerly RKKP_CLL, RKKP_LYFO and RKKP_DaMyDa). These are raw import
+  tables read with load_dataset().
+  Import tables are stored in dated folders (import/SUNDK/DATE/). use_version('YYYYMMDD') reads the delivery that was current on that date.
+  Data dictionary with variable descriptions for the SUNDK registries:
+  https://www.db-dokumentation-sundk.dk/Public/Default.aspx?ReturnUrl=%2f&db2=-9
+sources: []
+caveats:
+  - "Column names keep their original case (they are not lowercased by load_dataset()), except patientid, which is always lowercase."
+  - "CPR_Doedsdato is a CPR status-change date. For patients with CPR_Status 80 (emigrated) or 70 (disappeared) it is not a death date. CPR_Status is handled differently in each registry: see the individual SUNDK tables."
