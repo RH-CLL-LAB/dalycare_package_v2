@@ -1,0 +1,14 @@
+name: SDS
+status: RELEASED
+former_name: ""
+purpose: >-
+  Source documentation for the SDS (Danish national registers) import tables, e.g.
+  SDS_diagnoser, SDS_laboratorieproevesvar and SDS_epikur. These are raw import
+  tables read with load_dataset(). Old and new table names are given in the
+  former_name field of each table.
+  Import tables are stored in dated folders (import/SDS/DATE/). use_version('YYYYMMDD') reads the delivery that was current on that date.
+  Data dictionary with variable and code descriptions for the SDS registers:
+  https://www.esundhed.dk/Dokumentation?rid=5&tid=7
+sources: []
+caveats:
+  - "Column names are lowercased by load_dataset()."

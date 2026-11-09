@@ -1,0 +1,8 @@
+name: SDS_diagnoser
+status: RELEASED
+former_name: "SDS_t_diag"
+purpose: >-
+  LPR. ICD-10 diagnoses.
+sources: []
+caveats:
+  - "General rules for SDS tables: see table_info('SDS')."

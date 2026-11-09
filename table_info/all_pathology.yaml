@@ -29,4 +29,5 @@ caveats:
   - "The date is the requisition (biopsy) date, not the date the pathology diagnosis was made."
   - "sor and sor_name are filled for only a small share of the requisitions (about 1-2%), because the sor code is mostly missing in the delivered SDS data; of the codes that are present, most can be translated to a unit name. shak, hospital and clinic are much more complete (about two thirds of the rows have a hospital), so use those to identify the ordering department."
   - "Free-text pathology notes (v_fritekst) are not delivered by pato and are not part of this table."
+  - "Details on the source tables: see table_info('SDS_fctrekvisition') and table_info('SDS_dimpatologiskdiagnose'). General rules for SDS tables: see table_info('SDS')."
 open_questions:

@@ -1,0 +1,8 @@
+name: SDS_vaevregistrering
+status: RELEASED
+former_name: "SDS_t_vaevsanvend_markoer"
+purpose: >-
+  Import table (former name SDS_t_vaevsanvend_markoer).
+sources: []
+caveats:
+  - "General rules for SDS tables: see table_info('SDS')."

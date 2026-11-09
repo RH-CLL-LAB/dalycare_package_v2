@@ -1,0 +1,9 @@
+name: SUNDK_CLL
+status: RELEASED
+former_name: "RKKP_CLL"
+purpose: >-
+  SUNDK CLL registry import table (formerly RKKP_CLL).
+sources: []
+caveats:
+  - "General rules for SUNDK tables: see table_info('SUNDK')."
+  - "CPR_Status is not in the CLL documentation and is not delivered, so CPR_Doedsdato values that are status changes (emigrated or disappeared) cannot be identified and may appear as deaths in all_death_dates."

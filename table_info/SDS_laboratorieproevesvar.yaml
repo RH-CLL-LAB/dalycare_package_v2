@@ -1,0 +1,9 @@
+name: SDS_laboratorieproevesvar
+status: RELEASED
+former_name: "SDS_lab_forsker"
+purpose: >-
+  Import table (former name SDS_lab_forsker).
+sources: []
+caveats:
+  - "General rules for SDS tables: see table_info('SDS')."
+  - "Full coverage from around 2015."

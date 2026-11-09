@@ -1,0 +1,8 @@
+name: SDS_proevesvar_optaelling
+status: RELEASED
+former_name: "SDS_lab_optaelling"
+purpose: >-
+  Import table (former name SDS_lab_optaelling).
+sources: []
+caveats:
+  - "General rules for SDS tables: see table_info('SDS')."

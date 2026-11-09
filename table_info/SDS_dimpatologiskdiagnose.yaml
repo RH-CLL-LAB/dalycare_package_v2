@@ -1,0 +1,10 @@
+name: SDS_dimpatologiskdiagnose
+status: RELEASED
+former_name: "SDS_t_pato, SDS_t_konk_ny"
+purpose: >-
+  Part of the new SDS data model for the Pathology Register (PATO), not 1:1 with the old tables.
+  Contains SNOMED codes. Joined with SDS_fctrekvisition on dw_ek_rekvisition (replaces k_rekvnr).
+sources: []
+caveats:
+  - "General rules for SDS tables: see table_info('SDS')."
+  - "The join to SDS_fctrekvisition on dw_ek_rekvisition is many-to-many. It replaces the old k_rekvnr key and the old SDS_t_pato table."

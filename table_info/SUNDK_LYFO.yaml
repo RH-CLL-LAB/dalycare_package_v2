@@ -1,0 +1,9 @@
+name: SUNDK_LYFO
+status: RELEASED
+former_name: "RKKP_LYFO"
+purpose: >-
+  SUNDK LYFO registry import table (formerly RKKP_LYFO).
+sources: []
+caveats:
+  - "General rules for SUNDK tables: see table_info('SUNDK')."
+  - "CPR_status (vital status) is delivered. Dates with status 80 (emigrated) or 70 (disappeared) are not death dates and are excluded from all_death_dates."

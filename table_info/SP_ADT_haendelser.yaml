@@ -1,0 +1,10 @@
+name: SP_ADT_haendelser
+status: RELEASED
+former_name: ""
+purpose: >-
+  Import table from SP with admission, discharge and transfer events. Used to define hospitalisations (see AE_hospitalization()).
+sources: []
+caveats:
+  - "General rules for SP tables: see table_info('SP')."
+  - "The variable previously named current_icd10_list is now named aktionsdiagnose."
+  - "Has a death_date column."

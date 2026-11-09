@@ -23,3 +23,5 @@ columns:
 caveats:
   - "The coverage period differs between the sources (SDS, SP, SUNDK), so do not assume the same period for all of them."
   - Some patients have data registered after death or end of follow-up.
+  - "RKKP/SUNDK CPR_Doedsdato is a CPR status-change date and is not always a death date. CPR_Status 80/70 is excluded for DaMyDa and LYFO; CLL has no status column, so such dates may appear as deaths there. See table_info('SUNDK_CLL'), table_info('SUNDK_LYFO') and table_info('SUNDK_DaMyDa')."
+  - "The sources have different delivery dates, so a patient can have a death date in a newer source and none in SDS yet."
