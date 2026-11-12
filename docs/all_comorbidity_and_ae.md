@@ -53,9 +53,7 @@ The one-year baseline `base_mean_7d365` is the mean of the measurements from 365
 
 ### Type 2 diabetes (`core_scripts/AE_T2D.R`)
 
-`run_AE_T2D()`: one event (`T2D onset`) per patient in `all_patients`. Candidates have a diagnosis starting with DE11 or a prescription of an anti-diabetic drug (ATC A10B), from `SDS_epikur` and `SDS_ekokur`. Excluded are women aged 20-39 with only metformin (A10BA02) prescriptions and no DE11 diagnosis, patients with insulin (A10A) or a DE10 diagnosis before the age of 30, and patients with a DE10 diagnosis before the T2D onset who never had a non-insulin anti-diabetic drug. `start_date` is the earlier of the first diagnosis and the first prescription.
-
-A patient is only kept if there is both a diagnosis date and a prescription date. The condition was written for "T2D at CLL diagnosis" and with missing dates it removes patients that have only a diagnosis or only a prescription.
+`run_AE_T2D()`: one event (`T2D onset`) per patient in `all_patients`. Candidates have a diagnosis starting with DE11 or a prescription of an anti-diabetic drug (ATC A10B), from `SDS_epikur` and `SDS_ekokur`. A diagnosis or a prescription is enough. SGLT2 inhibitors (A10BK), GLP-1 analogues (A10BJ) and tirzepatide (A10BX16) do not count as a prescription, because they are now also used for other indications (changed after the original publication). Excluded are women aged 20-39 with only metformin (A10BA02) prescriptions and no DE11 diagnosis, patients with insulin (A10A) or a DE10 diagnosis before the age of 30, and patients with a DE10 diagnosis before the T2D onset who never had a non-insulin anti-diabetic drug. `start_date` is the earlier of the first diagnosis and the first prescription.
 
 ### Hypertension (`core_scripts/AE_hypertension.R`)
 

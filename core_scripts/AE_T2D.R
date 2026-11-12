@@ -9,24 +9,30 @@
 #
 # Output has the shape of all_comorbidity_and_ae (event_type 'T2D onset', one event per patient):
 #   patientid, event_id, start_date, end_date, duration_days, event_value, max_value, event_type
-# start_date is the first T2D diagnosis (ICD-10 DE11) or the first anti-diabetic prescription (ATC A10B),
-# whichever comes first. end_date and duration_days are empty, event_value and max_value are 1.
+# start_date is the first T2D diagnosis (ICD-10 DE11) or the first anti-diabetic prescription (ATC A10B,
+# without SGLT2 inhibitors, GLP-1 analogues and tirzepatide), whichever comes first. A diagnosis or a
+# prescription is enough. end_date and duration_days are empty, event_value and max_value are 1.
 
 #### Build ####
 #' T2D onset per patient.
-#' 1) Candidates: a diagnosis starting with DE11 or a prescription of an anti-diabetic drug (ATC A10B).
+#' 1) Candidates: a diagnosis starting with DE11 or a prescription of an anti-diabetic drug (ATC A10B). SGLT2
+#'    inhibitors (A10BK), GLP-1 analogues (A10BJ) and tirzepatide (A10BX16) do not count as a prescription,
+#'    because they are now also used for other indications. A diagnosis or a prescription is enough.
 #' 2) Excluded: women aged 20-39 at a metformin (A10BA02) prescription with no other A10B drug and no DE11
 #'    diagnosis (probably PCOS); insulin (A10A) or a DE10 diagnosis before the age of 30 (T1D); a DE10
 #'    diagnosis before the T2D onset when no non-insulin anti-diabetic drug was ever prescribed.
-#' 3) Kept only if the patient has both a first diagnosis date and a first prescription date (the
-#'    condition t2d_at_cll_diagnosis in the old script, which with missing dates removes patients that have
-#'    only a diagnosis or only a prescription).
 #' @param all_patients patientid, sex ('F'), date_birth
 #' @param diagnoses patientid, date_diagnosis, diagnosis (view_diagnoses_all_distinct())
 #' @param prescriptions patientid, eksd, atc (SDS_epikur and SDS_ekokur)
 build_AE_T2D = function(all_patients, diagnoses, prescriptions){
   patients = all_patients
   prescriptions = prescriptions %>% mutate(eksd = as.Date(eksd))
+
+  # Anti-diabetic drugs that count as a T2D prescription: A10B without SGLT2 inhibitors (A10BK), GLP-1
+  # analogues (A10BJ) and tirzepatide (A10BX16)
+  t2d_drugs = prescriptions %>%
+    filter(str_starts(atc, 'A10B') & !str_starts(atc, 'A10BJ') & !str_starts(atc, 'A10BK') &
+             !str_starts(atc, 'A10BX16'))
 
   # T2D identification core
   t2d_candidates = patients %>%
@@ -37,8 +43,7 @@ build_AE_T2D = function(all_patients, diagnoses, prescriptions){
         summarise(first_diagnosis_date = min(date_diagnosis, na.rm = TRUE)),
       by = 'patientid') %>%
     left_join(
-      prescriptions %>%
-        filter(str_starts(atc, 'A10B')) %>%
+      t2d_drugs %>%
         group_by(patientid) %>%
         summarise(first_med_date = min(eksd, na.rm = TRUE)),
       by = 'patientid') %>%
@@ -50,7 +55,7 @@ build_AE_T2D = function(all_patients, diagnoses, prescriptions){
     filter(atc == 'A10BA02') %>%
     mutate(age_at_prescription = interval(date_birth, eksd) / years(1)) %>%
     filter(between(age_at_prescription, 20, 39)) %>%
-    anti_join(prescriptions %>% filter(str_starts(atc, 'A10B') & atc != 'A10BA02') %>% select(patientid),
+    anti_join(t2d_drugs %>% filter(atc != 'A10BA02') %>% select(patientid),
               by = 'patientid') %>%
     anti_join(diagnoses %>% filter(str_starts(diagnosis, 'DE11')) %>% distinct(patientid),
               by = 'patientid') %>%
@@ -82,17 +87,16 @@ build_AE_T2D = function(all_patients, diagnoses, prescriptions){
                by = 'patientid') %>%
     mutate(t2d_onset_date = pmin(t2d_diag_date, t2d_med_date, na.rm = TRUE)) %>%
     filter(date_diagnosis < t2d_onset_date) %>%
-    anti_join(prescriptions %>% filter(str_starts(atc, 'A10B')) %>% distinct(patientid), by = 'patientid') %>%
+    anti_join(t2d_drugs %>% distinct(patientid), by = 'patientid') %>%
     distinct(patientid)
 
   final_exclusions = bind_rows(t1d_exclusions, t1d_before_t2d_no_meds) %>% distinct(patientid)
 
   t2d_cases %>%
     anti_join(final_exclusions, by = 'patientid') %>%
-    filter(coalesce(first_diagnosis_date <= first_med_date | first_med_date <= first_diagnosis_date, FALSE)) %>%
     transmute(patientid,
               event_id = 1,
-              start_date = as.Date(pmin(first_diagnosis_date, first_med_date)),
+              start_date = as.Date(pmin(first_diagnosis_date, first_med_date, na.rm = TRUE)),
               end_date = as.Date(NA),
               duration_days = as.numeric(NA),
               event_value = 1,
