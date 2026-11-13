@@ -240,9 +240,10 @@ load_dataset = function(dataset = NULL, value = NULL, column = 'patientid',
   #' All column names are lowercased on load (changed 2026 -- the delivered
   #' case varies between tables and even between deliveries of the same table).
   #' Parquet tables are read lazily: value (rows), selected_columns and limit are
-  #' applied before anything is loaded into memory. For large tables (e.g.
-  #' all_laboratory_measurements, about 120 million rows) always give value
-  #' and/or selected_columns -- loading the whole table can need tens of GB of RAM.
+  #' applied before anything is loaded into memory. For faster loading of large
+  #' tables (e.g. all_laboratory_measurements, about 120 million rows), give value
+  #' (the patientids of your cohort) and/or selected_columns (the columns you need).
+  #' Loading the whole table can need tens of GB of RAM.
 
   #' @examples
   #' Please see help_info()
@@ -252,7 +253,7 @@ load_dataset = function(dataset = NULL, value = NULL, column = 'patientid',
   #' load_dataset("SDS_t_sksube", value = "UXMA00", column = "c_opr")
   #' load_dataset("SDS_procedurer_andre", value = SKS.CLL_targeted, column = "procedurekode")
   #' load_dataset("SDS_laboratorieproevesvar", value = NPU.LYM, column = "analysiscode")
-  #' load_dataset("all_laboratory_measurements", value = sample(all_patients$patientid, 1000),
+  #' load_dataset("all_laboratory_measurements", value = cohort$patientid,
   #'              selected_columns = c("patientid", "analysiscode", "samplingdate", "c_value"))
 
   catalog = dalycare_catalog()
@@ -410,8 +411,8 @@ load_dataset = function(dataset = NULL, value = NULL, column = 'patientid',
       n_rows = tryCatch(nrow(data), error = function(e) NA)
       if(!is.na(n_rows) && n_rows > 20e6){
         cat('\n  Note: loading all ', format(n_rows, big.mark = ','),
-            ' rows into memory. Use value = (e.g. your patientids) and/or',
-            ' selected_columns = to load only what you need.\n', sep = '')
+            ' rows into memory. For faster loading, use value = <your cohort patientids>',
+            ' and/or selected_columns = <the columns you need>.\n', sep = '')
       }
     }
 
