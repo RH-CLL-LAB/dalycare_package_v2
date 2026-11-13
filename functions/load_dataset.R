@@ -239,6 +239,10 @@ load_dataset = function(dataset = NULL, value = NULL, column = 'patientid',
   #' Stops with an error if a requested table does not exist (changed 2026 -- previously silent).
   #' All column names are lowercased on load (changed 2026 -- the delivered
   #' case varies between tables and even between deliveries of the same table).
+  #' Parquet tables are read lazily: value (rows), selected_columns and limit are
+  #' applied before anything is loaded into memory. For large tables (e.g.
+  #' all_laboratory_measurements, about 120 million rows) always give value
+  #' and/or selected_columns -- loading the whole table can need tens of GB of RAM.
 
   #' @examples
   #' Please see help_info()
@@ -248,6 +252,8 @@ load_dataset = function(dataset = NULL, value = NULL, column = 'patientid',
   #' load_dataset("SDS_t_sksube", value = "UXMA00", column = "c_opr")
   #' load_dataset("SDS_procedurer_andre", value = SKS.CLL_targeted, column = "procedurekode")
   #' load_dataset("SDS_laboratorieproevesvar", value = NPU.LYM, column = "analysiscode")
+  #' load_dataset("all_laboratory_measurements", value = sample(all_patients$patientid, 1000),
+  #'              selected_columns = c("patientid", "analysiscode", "samplingdate", "c_value"))
 
   catalog = dalycare_catalog()
 
@@ -364,14 +370,28 @@ load_dataset = function(dataset = NULL, value = NULL, column = 'patientid',
 
     if(filtered){
       # Cast filter value to match column type to avoid Arrow type errors
-      # (e.g. patientid is int64 in some tables, string in others)
-      col_type = tryCatch(class(dplyr::pull(data, !!rlang::sym(column))[0]), error = function(e) NULL)
-      typed_value = tryCatch({
-        if(!is.null(col_type) && col_type[1] %in% c('integer64','integer','int32')) {
-          if(col_type[1] == 'integer') as.integer(value)
-          else bit64::as.integer64(value)
+      # (e.g. patientid is int64 in some tables, string in others).
+      # For parquet the type is read from the file schema: pull() on the lazy
+      # dataset would load the whole column into memory (about 120 million
+      # values for all_laboratory_measurements) just to look at its class.
+      # csv/xlsx tables are already in memory, so pull() is cheap there.
+      col_type = tryCatch({
+        if(row$filetype == 'parquet'){
+          sch = arrow::open_dataset(row$path, format = row$filetype)$schema
+          orig_col = names(sch)[tolower(names(sch)) == tolower(column)][1]
+          sch[[orig_col]]$type$ToString()
+        } else {
+          class(dplyr::pull(data, !!rlang::sym(column))[0])[1]
         }
-        else if(!is.null(col_type) && col_type[1] %in% c('numeric','double')) as.numeric(value)
+      }, error = function(e) NULL)
+      typed_value = tryCatch({
+        if(!is.null(col_type) && col_type %in% c('integer64', 'int64')) {
+          bit64::as.integer64(value)
+        }
+        else if(!is.null(col_type) && col_type %in% c('integer', 'int32', 'int16', 'int8', 'uint8', 'uint16', 'uint32')) {
+          as.integer(value)
+        }
+        else if(!is.null(col_type) && col_type %in% c('numeric', 'double', 'float', 'float32', 'float64')) as.numeric(value)
         else as.character(value)
       }, error = function(e) value)
       data = data %>% filter(!!rlang::sym(column) %in% typed_value)
@@ -381,6 +401,18 @@ load_dataset = function(dataset = NULL, value = NULL, column = 'patientid',
     }
     if(!is.null(limit)){
       data = data %>% head(limit)
+    }
+
+    # Heads-up before a big unfiltered load. nrow() on an unfiltered lazy
+    # parquet table only reads metadata, so this is cheap.
+    if(!quiet && !filtered && is.null(selected_columns) && is.null(limit) &&
+       row$filetype == 'parquet'){
+      n_rows = tryCatch(nrow(data), error = function(e) NA)
+      if(!is.na(n_rows) && n_rows > 20e6){
+        cat('\n  Note: loading all ', format(n_rows, big.mark = ','),
+            ' rows into memory. Use value = (e.g. your patientids) and/or',
+            ' selected_columns = to load only what you need.\n', sep = '')
+      }
     }
 
     data = data %>% collect()
