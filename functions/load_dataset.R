@@ -411,8 +411,8 @@ load_dataset = function(dataset = NULL, value = NULL, column = 'patientid',
       n_rows = tryCatch(nrow(data), error = function(e) NA)
       if(!is.na(n_rows) && n_rows > 20e6){
         cat('\n  Note: loading all ', format(n_rows, big.mark = ','),
-            ' rows into memory. For faster loading, use value = <your cohort patientids>',
-            ' and/or selected_columns = <the columns you need>.\n', sep = '')
+            ' rows into memory. For faster loading, use value = cohort$patientid',
+            ' and/or selected_columns = c("patientid", "analysiscode").\n', sep = '')
       }
     }
 
