@@ -241,9 +241,9 @@ load_dataset = function(dataset = NULL, value = NULL, column = 'patientid',
   #' case varies between tables and even between deliveries of the same table).
   #' Parquet tables are read lazily: value (rows), selected_columns and limit are
   #' applied before anything is loaded into memory. For faster loading of large
-  #' tables (e.g. all_laboratory_measurements, about 120 million rows), give value
-  #' (the patientids of your cohort) and/or selected_columns (the columns you need).
-  #' Loading the whole table can need tens of GB of RAM.
+  #' tables (e.g. all_laboratory_measurements), give value (the patientids of
+  #' your cohort) and/or selected_columns (the columns you need). Loading all rows
+  #' of a very large table can need tens of GB of RAM.
 
   #' @examples
   #' Please see help_info()
@@ -373,8 +373,8 @@ load_dataset = function(dataset = NULL, value = NULL, column = 'patientid',
       # Cast filter value to match column type to avoid Arrow type errors
       # (e.g. patientid is int64 in some tables, string in others).
       # For parquet the type is read from the file schema: pull() on the lazy
-      # dataset would load the whole column into memory (about 120 million
-      # values for all_laboratory_measurements) just to look at its class.
+      # dataset would load the whole column into memory (one value per row of
+      # the table, e.g. all_laboratory_measurements) just to look at its class.
       # csv/xlsx tables are already in memory, so pull() is cheap there.
       col_type = tryCatch({
         if(row$filetype == 'parquet'){
@@ -405,7 +405,8 @@ load_dataset = function(dataset = NULL, value = NULL, column = 'patientid',
     }
 
     # Heads-up before a big unfiltered load. nrow() on an unfiltered lazy
-    # parquet table only reads metadata, so this is cheap.
+    # parquet table only reads metadata, so this is cheap. The row count is
+    # read from the file, not hardcoded.
     if(!quiet && !filtered && is.null(selected_columns) && is.null(limit) &&
        row$filetype == 'parquet'){
       n_rows = tryCatch(nrow(data), error = function(e) NA)
