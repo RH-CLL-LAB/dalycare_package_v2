@@ -183,6 +183,14 @@ source(file.path(PKG_HOME, 'functions/load_blood_culture_SP.R'))
 source(file.path(PKG_HOME, 'functions/load_biochemistry.R'))
 source(file.path(PKG_HOME, 'functions/load_all_data_2025.R')) # former aggregate_all_data.R - updated 8/1-26 - CB
 
+#### Core scripts ####
+# build_*() and run_*() functions that create the core tables (core_scripts/). The scripts only define
+# functions, nothing runs when they are sourced, so they are loaded with the package like functions/.
+for(.core_script in sort(list.files(file.path(PKG_HOME, 'core_scripts'), pattern = '\\.R$', full.names = TRUE))){
+  source(.core_script)
+}
+rm(.core_script)
+
 load_SKS_antineoplastics <- function(){
 source(file.path(PKG_HOME, 'load_SKS_antineoplastic.R'))
 }

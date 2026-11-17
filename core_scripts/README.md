@@ -13,4 +13,4 @@ Scripts that build new tables for CORE (as opposed to `functions/`, which holds 
 
 ## Structure of a core script
 
-The logic of a table lives in a function (for example `build_all_IPI()`) that only takes data in and returns the table: no paths, no loading and no writing, so the code can be read, copied into your own script, or called from a pipeline. `run_*()` functions load the data and return the table. Nothing runs when a script is sourced, and saving to `core/` is done by the core pipeline.
+The logic of a table lives in a function (for example `build_all_IPI()`) that only takes data in and returns the table: no paths, no loading and no writing, so the code can be read, copied into your own script, or called from a pipeline. `run_*()` functions load the data and return the table. Nothing runs when a script is sourced, and all scripts are loaded with the package by `load_functions.R`, so `run_*()` can be called without sourcing the script first. Saving to `core/` is done by the core pipeline.
