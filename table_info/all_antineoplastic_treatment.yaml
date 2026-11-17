@@ -1,5 +1,5 @@
 name: all_antineoplastic_treatment
-status: PLANNED
+status: RELEASED
 former_name: antineoplastic_treatment
 purpose: >-
   Cancer-directed treatment history: chemotherapy, immunotherapy, targeted
@@ -37,3 +37,4 @@ caveats:
   - "To identify specific drugs, use the drug name in tx_text. Currently it is not possible to rely solely on ATC codes, as LPR uses SKS codes and SUNDK uses no codes."
   - "Use data from source SP beh (treatment plans from SP) carefully. The name of the treatment plan is used to generate tx_text, and physicians can (and do) change what a patient is actually given without changing the name. It is best suited for brand new treatments that have not yet been assigned an ATC code."
   - "The diagnosis columns should be used carefully. They do not always make sense, and a drug can easily be given for another condition than what is listed."
+  - "The table was released manually. It is not yet built by the core pipeline (dalycare_core); adding it to the pipeline is still to do."
