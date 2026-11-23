@@ -381,12 +381,13 @@ check('right_truncation() warns but does not stop when status == NA', {
   is.data.frame(result) && nrow(result) > 0 && (sum(is.na(cohort$status)) == 0 || warned)
 })
 
-check('AE_AKI() -- acute kidney injury, full chain: load_biochemistry -> clean_lab_values -> AE_AKI', {
-  if(!exists('NPU.KREA')) load_npu_common()
-  KREA_LAB = load_biochemistry(labs = NPU.KREA)
-  CREATININE_clean = KREA_LAB %>% clean_lab_values()
-  AKI = CREATININE_clean %>% AE_AKI(value = value2)
-  nrow(AKI) > 0
+check('AE_AKI() -- acute kidney injury: a creatinine rise of 1.5x gives one AKI event (small made-up example)', {
+  krea = data.frame(patientid = 'p1',
+                    samplingdate = as.Date('2020-01-01') + c(0, 1, 30),
+                    samplingtime = '08:00:00',
+                    c_value = c(60, 100, 60))
+  events = build_AE_AKI(build_AE_AKI_measurements(krea))
+  nrow(events) == 1 && events$event_type == 'ae_AKI'
 })
 
 check('load_all_data() (fra load_all_data_2025.R) -- the large bulk loader runs without errors on a small cohort', {

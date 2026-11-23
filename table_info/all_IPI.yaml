@@ -11,7 +11,7 @@ purpose: >-
   CLL; IPS system for Waldenstrom macroglobulinemia (IPSSWM) for LPL (including
   WM); and R-ISS for MM (including patients with smoldering MM). See the
   documentation and references for each score in the specific IPI function,
-  e.g. ?CLL_IPI(). Built by core_scripts/all_IPI.R (see docs/all_IPI.md).
+  e.g. ?CLL_IPI(). Built by functions/all_IPI.R (see docs/all_IPI.md).
 sources:
   - "SUNDK: CLL, DaMyDa, LYFO"
   - "all_laboratory_measurements (supplement)"

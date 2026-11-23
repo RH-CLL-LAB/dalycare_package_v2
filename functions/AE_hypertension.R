@@ -2,9 +2,9 @@
 # Hypertension events for the CORE table all_comorbidity_and_ae (see table_info/all_comorbidity_and_ae.yaml)
 # Based on hypertension_final_all_patients.R (Noomi).
 #
-# The logic lives in build_AE_hypertension(), which gets the data as arguments. run_AE_hypertension() loads
+# The logic lives in build_AE_hypertension(), which gets the data as arguments. AE_hypertension() loads
 # the data and calls it. Nothing runs when this file is sourced; use
-#   hypertension = run_AE_hypertension()
+#   hypertension = AE_hypertension()
 # The table is not saved here: writing to core/ is done by the core pipeline.
 #
 # Output has the shape of all_comorbidity_and_ae (event_type 'hypertension event', one event per patient):
@@ -100,7 +100,7 @@ build_AE_hypertension = function(diagnoses, prescriptions, first_diagnosis){
 #### Run ####
 # Loads the data and builds the hypertension events. The dalycare package must be loaded first. Nothing
 # runs when this file is sourced.
-run_AE_hypertension = function(){
+AE_hypertension = function(){
   load_dataset('SDS_epikur')
   build_AE_hypertension(diagnoses = view_diagnoses_all_distinct(),
                         prescriptions = SDS_epikur %>% select(patientid, eksd, atc),

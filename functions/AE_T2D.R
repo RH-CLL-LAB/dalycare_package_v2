@@ -2,9 +2,9 @@
 # Type 2 diabetes (T2D) onset for the CORE table all_comorbidity_and_ae (see table_info/all_comorbidity_and_ae.yaml)
 # Based on T2D_2_All_patients.R (all patients, no restriction to a diagnosis).
 #
-# The logic lives in build_AE_T2D(), which gets the data as arguments. run_AE_T2D() loads the data and calls
+# The logic lives in build_AE_T2D(), which gets the data as arguments. AE_T2D() loads the data and calls
 # it. Nothing runs when this file is sourced; use
-#   T2D = run_AE_T2D()
+#   T2D = AE_T2D()
 # The table is not saved here: writing to core/ is done by the core pipeline.
 #
 # Output has the shape of all_comorbidity_and_ae (event_type 'T2D onset', one event per patient):
@@ -108,7 +108,7 @@ build_AE_T2D = function(all_patients, diagnoses, prescriptions){
 #### Run ####
 # Loads the data for all patients in all_patients and builds the T2D events. The dalycare package must be
 # loaded first. Nothing runs when this file is sourced.
-run_AE_T2D = function(){
+AE_T2D = function(){
   load_dataset('all_patients')
   load_dataset('SDS_epikur')
   load_dataset('SDS_ekokur')

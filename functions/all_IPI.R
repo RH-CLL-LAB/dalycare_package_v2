@@ -2,9 +2,9 @@
 # Builds the all_IPI table for CORE, see docs/all_IPI.md
 # Originally IPI_eop_2026.R, updated "2026-10-08"
 #
-# The logic lives in build_all_IPI(), which gets the data as arguments. run_all_IPI() loads
+# The logic lives in build_all_IPI(), which gets the data as arguments. all_IPI() loads
 # the data and calls it. Nothing runs when this file is sourced; use
-#   all_IPI = run_all_IPI()
+#   all_IPI = all_IPI()
 # The table is not saved here: writing to core/ is done by the core pipeline.
 
 #' @param SUNDK_CLL,SUNDK_DaMyDa,SUNDK_LYFO raw SUNDK registries (from SUNDK_DATASETS)
@@ -231,7 +231,7 @@ build_all_IPI = function(SUNDK_CLL, SUNDK_DaMyDa, SUNDK_LYFO, all_patients, IGHV
 # Loads the input data and builds all_IPI. The dalycare package must be loaded first
 # (source load_dalycare_package.R). The table is not saved here: writing to core/ is
 # done by the core pipeline. Nothing runs when this file is sourced.
-run_all_IPI = function(){
+all_IPI = function(){
   load_dataset(c(SUNDK_DATASETS, 'all_patients', 'IGHV_IMGT_20261006'))
   load_dataset('SDS_fctrekvisition', SUNDK_CLL$patientid)
   load_npu_common()
