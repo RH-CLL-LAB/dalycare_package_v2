@@ -183,6 +183,15 @@ source(file.path(PKG_HOME, 'functions/load_blood_culture_SP.R'))
 source(file.path(PKG_HOME, 'functions/load_biochemistry.R'))
 source(file.path(PKG_HOME, 'functions/load_all_data_2025.R')) # former aggregate_all_data.R - updated 8/1-26 - CB
 
+#### Functions that build the derived tables of dalycare_core ####
+# Each file only defines functions (build_*() and the function with the name of the table); nothing runs when
+# it is sourced. See docs/core_tables_functions.md.
+source(file.path(PKG_HOME, 'functions/AE_infections.R'))
+source(file.path(PKG_HOME, 'functions/AE_CTCAE.R'))
+source(file.path(PKG_HOME, 'functions/AE_T2D.R'))
+source(file.path(PKG_HOME, 'functions/AE_hypertension.R'))
+source(file.path(PKG_HOME, 'functions/all_IPI.R'))
+
 load_SKS_antineoplastics <- function(){
 source(file.path(PKG_HOME, 'load_SKS_antineoplastic.R'))
 }

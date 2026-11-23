@@ -1,100 +1,160 @@
-AE_AKI = function(data, date = samplingdate, time = samplingtime, value = value, patientid=patientid, summary = TRUE){
-  #' @title
-  #' AE_AKI
-  #' @author
-  #' christian brieghel
-  #' @description  
-  #' Defines acute kidney injury based on a 1.5x increase from the baseline serum creatinine (scr_base_median) within 7 days (scr_low_7d) or an absolute scr increase of 26.5 µmol/L within 48 hours (scr_low_48h) using all_laboratory_measurements data.
-  #' all_laboratory_measurements data should be filtered to contain creatinine only (NPU.KREA) to avoid time-lapse.
-  #' @examples 
-  #' LAB = load_biochemistry(labs = NPU.KREA) #loads creatinine
-  #' CREATININE_clean = LAB %>% clean_lab_values() #cleans creatinine values
-  #' AKI = CREATININE_clean %>%  AE_AKI(value = value2)
-  #' @references 
-  #' Carrero JJ et al. Kidney Int. 2023 Jan;103(1):53-69.
-  
-  load_dataset('all_patients')
-  dat = data %>%
-    select(patientid = {{patientid}}, samplingdate = {{date}}, samplingtime = {{time}}, result = {{value}}) %>%
-    left_join(all_patients %>% select(patientid, date_birth)) %>%
-    mutate(
-      samplingdate = as_date(samplingdate),
-      age_at_test = diff_days(date_birth, samplingdate),
-      date_time = as.numeric(seconds(samplingdate)),
-      i.scr_inhos = 0) %>%
-    select(cpr_enc = patientid, date_time, result, sampledate = samplingdate, age_at_test, i.scr_inhos) %>% 
-    as.data.table() %>% 
-    scr_low_48h() %>% 
-    scr_low_7d() %>% 
-    scr_base_median() 
-  
-  ### Identifying AKI ###
-  ## 1. Identifying AKI - which samples fulfill definition?
-  # Defintion 1: AKI due to absolute increase within -48 hr
-  # Definition 2: AKI due to increase within -7 days
-  # Definition 3: AKI due to increase within -7 to -365 days.
-  
-  dat[result >= base_min_48h + 26.5, aki_def := 1]
-  dat[result / base_min_7d >= 1.5, aki_def := 1]
-  dat[result / base_median >= 1.5, aki_def := 1]
-  
-  ##
-  # Creating new variable for which criteria was fulfilled.
-  dat[result >= base_min_48h + 26.5, aki_krit_48 := TRUE]
-  dat[result / base_min_7d >= 1.5, aki_krit_7d := TRUE]
-  dat[result / base_median >= 1.5, aki_krit_base := TRUE]
-  
-  ###### 2. Identifying AKI by stage #####
-  ### Here we use the highest stage within 7 days after first AKI.
-  
-  dat[, stage_48 := as.numeric(NA)]
-  dat[, stage_week := as.numeric(NA)]
-  dat[, stage_year := as.numeric(NA)]
-  dat[, stage_abs := as.numeric(NA)]
-  
-  dat[, aki1_stage_max := as.numeric(NA)]
-  
-  dat = dat %>% 
-    group_by(cpr_enc) %>% 
-    mutate(new_aki = ifelse(aki_def == lag(aki_def), 'No', new_aki),
-           new_aki = ifelse(aki_def == 1 & is.na(new_aki), 'Yes', new_aki),
-           n.AKI = ifelse(new_aki =='Yes', row_number(), NA),
-           n.AKI = as.numeric(factor(n.AKI))) %>%
-    ungroup() %>% 
-    mutate(aki1_date_time = if_else(!is.na(n.AKI), date_time, NA)) %>% 
-    select(aki_def, new_aki, n.AKI, aki1_date_time, everything()) %>% 
-    as.data.table()
-  
-  dat[(aki_def == 1) & (date_time <= aki1_date_time + 604800) & (result >= base_min_48h + 26.5), stage_48 := 1]
-  
-  dat[(aki_def == 1) & (date_time <= aki1_date_time + 604800), ratio_week := result / base_min_7d]
-  dat[(aki_def == 1) & (date_time <= aki1_date_time + 604800), ratio_year := result / base_median]
-  
-  dat[(aki_def == 1) & (date_time <= aki1_date_time + 604800) & ratio_week >= 1.5 &  ratio_week < 2.0, stage_week := 1]
-  dat[(aki_def == 1) & (date_time <= aki1_date_time + 604800) & ratio_year >= 1.5 &  ratio_year < 2.0, stage_year := 1]
-  
-  dat[(aki_def == 1) & (date_time <= aki1_date_time + 604800) & ratio_week >= 2 &  ratio_week < 3.0, stage_week := 2]
-  dat[(aki_def == 1) & (date_time <= aki1_date_time + 604800) & ratio_year >= 2 &  ratio_year < 3.0, stage_year := 2]
-  
-  dat[(aki_def == 1) & (date_time <= aki1_date_time + 604800) & ratio_week >= 3, stage_week := 3]
-  dat[(aki_def == 1) & (date_time <= aki1_date_time + 604800) & ratio_year >= 3, stage_year := 3]
-  dat[(aki_def == 1) & (date_time <= aki1_date_time + 604800) & result >= 353.6, stage_abs := 3]
-  
-  if(summary){
-    dat_summary = dat %>% 
-      filter(aki_def == 1) %>% 
-      mutate(decimal_date = decimal_date(ymd(sampledate))) %>% 
-      group_by(cpr_enc) %>% 
-      mutate(grace = grace_period(decimal_date, days_karens = 90)) %>% 
-      ungroup() %>% 
-      select(cpr_enc, decimal_date, result, base_median, aki_def, grace, everything()) %>% 
-      filter(grace == 1) %>% 
-      group_by(cpr_enc) %>% 
-      mutate(n.AKI = as.numeric(factor(row_number()))) %>% #re-define order after filtering grace
-      ungroup() %>% 
-      dplyr::rename(patientid = cpr_enc)
-    return(dat_summary)}
-  else{
-    return(dat)
-  }
+## AE_AKI
+# Acute kidney injury (AKI) events for the CORE table all_comorbidity_and_ae (see table_info/all_comorbidity_and_ae.yaml)
+# Based on AKI_function_toNGC_v2.R (Tereza Fait Kadlec). This replaces the earlier AE_AKI() by Christian Brieghel (removed; the definition below was confirmed as the right one by Tereza Fait Kadlec).
+#
+# AKI definition (KDIGO), compared with the creatinine measurements before each measurement:
+#   an absolute increase of 26.5 umol/L within 48 hours,
+#   or a 1.5x increase compared to the minimum value over the past 7 days,
+#   or a 1.5x increase compared to the mean value over the past year (the 7 most recent days excluded),
+#   or a 1.5x increase from the most recent value.
+# NB: the last criterion is not part of the official definition. It was added because the data might not have
+# enough measurements to identify AKI with the 48 hour or 7 day windows. Be transparent about this when used in
+# publications.
+#
+# The logic lives in build_AE_AKI_measurements() (one row per creatinine measurement, with baselines, AKI
+# criteria, stage and episode) and build_AE_AKI() (one event per AKI episode). AE_AKI_all() loads the data
+# and calls them once: the events go to all_comorbidity_and_ae and the measurements to the table all_AKI.
+# Nothing runs when this file is sourced; use
+#   AKI = AE_AKI_all()   # AKI$events and AKI$all_AKI
+# The table is not saved here: writing to core/ is done by the core pipeline.
+#
+# Output has the shape of all_comorbidity_and_ae (event_type 'ae_AKI'):
+#   patientid, event_id, start_date, end_date, duration_days, event_value, max_value, event_type
+# start_date is the first measurement of the episode that fulfils the definition, event_value is the stage at
+# that measurement and max_value the highest stage within the episode (the AKI measurements until the first
+# measurement without AKI). end_date and duration_days are empty.
+
+#### Measurements ####
+#' New baselines are made at every new creatinine measurement, so that the creatinine level is always compared
+#' with a baseline within 48 hours, 7 days or a year before the measurement.
+#' @param creatinine patientid, samplingdate, samplingtime and c_value (umol/L) of creatinine (NPU.KREA).
+#'   A missing sampling time is set to 00:00:00; measurements without a valid date are left out.
+#' @return one row per measurement with baselines, aki_def, aki_stage, aki_episode and akd (acute kidney
+#'   disease: creatinine still elevated 7-90 days after the onset)
+build_AE_AKI_measurements = function(creatinine){
+  AKI = creatinine %>%
+    select(patientid, samplingdate, samplingtime, c_value) %>%
+    distinct() %>%
+    filter(!is.na(c_value)) %>%
+    mutate(samplingtime = as.character(samplingtime),
+           samplingtime = if_else(is.na(samplingtime) | samplingtime == '', '00:00:00', samplingtime),
+           datetime = ymd_hms(paste(as.character(as.Date(samplingdate)), samplingtime), quiet = TRUE),
+           samplingtime = hms::as_hms(samplingtime), # same type as samplingtime in all_laboratory_measurements
+           c_value = as.numeric(c_value)) %>%
+    filter(!is.na(datetime)) %>%
+    arrange(patientid, datetime)
+
+  data.table::setDT(AKI)
+  data.table::setorder(AKI, patientid, datetime)
+
+  # restrict rolling windows by time
+  AKI[, base_recent := data.table::shift(c_value, 1), by = patientid]
+  AKI[, base_min_48h := sapply(seq_len(.N), function(i) {
+    min(c_value[datetime >= datetime[i] - hours(48) & datetime < datetime[i]], na.rm = TRUE)
+  }), by = patientid]
+  AKI[, base_min_7d := sapply(seq_len(.N), function(i) {
+    min(c_value[datetime >= datetime[i] - days(7) & datetime < datetime[i]], na.rm = TRUE)
+  }), by = patientid]
+  AKI[, base_mean_7d365 := sapply(seq_len(.N), function(i) {
+    vals = c_value[datetime >= datetime[i] - days(365) & datetime < datetime[i] - days(7)]
+    if (length(vals) > 0) mean(vals, na.rm = TRUE) else NA_real_
+  }), by = patientid]
+
+  AKI_baselines = as.data.frame(AKI)
+
+  # detect AKI
+  AKI_detected = AKI_baselines %>%
+    mutate(aki_def_48h = c_value >= base_min_48h + 26.5,
+           aki_def_recent = c_value >= base_recent * 1.5,
+           aki_def_7d = c_value >= base_min_7d * 1.5,
+           aki_def_year = c_value >= base_mean_7d365 * 1.5,
+           aki_def = aki_def_48h | aki_def_7d | aki_def_recent | aki_def_year) # true if at least one is true
+
+  # AKI stage: the highest stage of all the rules that fit
+  stage_from_ratio = function(ratio) case_when(ratio >= 3 ~ 3, ratio >= 2 ~ 2, ratio >= 1.5 ~ 1, TRUE ~ NA_real_)
+  AKI_stages = AKI_detected %>%
+    mutate(aki_stage = pmax(if_else(c_value >= 353.6, 3, NA_real_),
+                            stage_from_ratio(c_value / base_min_7d),
+                            stage_from_ratio(c_value / base_mean_7d365),
+                            stage_from_ratio(c_value / base_recent),
+                            if_else(c_value >= base_min_48h + 26.5, 1, NA_real_),
+                            na.rm = TRUE))
+
+  # AKI episodes: the first time AKI appears after a non-AKI state
+  AKI_episodes = AKI_stages %>%
+    arrange(patientid, datetime) %>%
+    group_by(patientid) %>%
+    mutate(aki_def = replace_na(aki_def, FALSE),
+           new_aki = aki_def & !lag(aki_def, default = FALSE),
+           aki_episode = cumsum(new_aki),
+           aki_start_time = if_else(new_aki == TRUE, datetime, as.POSIXct(NA))) %>%
+    ungroup()
+
+  # AKD: creatinine still elevated 7-90 days after the onset
+  AKI_episodes %>%
+    group_by(patientid, aki_episode) %>%
+    mutate(akd = if_else(aki_def &
+                           datetime >= first(aki_start_time) + days(7) &
+                           datetime <= first(aki_start_time) + days(90), 1, 0)) %>%
+    ungroup()
 }
+
+#### all_AKI ####
+#' The table all_AKI: one row per creatinine measurement with the baselines, the criteria, the stage and the
+#' episode. An empty window gives a missing baseline (not Inf).
+#' @param AKI_measurements the result of build_AE_AKI_measurements()
+format_all_AKI = function(AKI_measurements){
+  AKI_measurements %>%
+    transmute(patientid, samplingdate = as.Date(samplingdate), samplingtime, datetime, c_value,
+              base_recent,
+              base_min_48h = if_else(is.infinite(base_min_48h), NA_real_, base_min_48h),
+              base_min_7d = if_else(is.infinite(base_min_7d), NA_real_, base_min_7d),
+              base_mean_7d365,
+              aki_def_48h, aki_def_7d, aki_def_year, aki_def_recent, aki_def,
+              aki_stage, aki_episode, new_aki, aki_start_time, akd) %>%
+    arrange(patientid, datetime)
+}
+
+#### Events ####
+#' One event per AKI episode.
+#' @param AKI_measurements the result of build_AE_AKI_measurements()
+build_AE_AKI = function(AKI_measurements){
+  AKI_measurements %>%
+    filter(aki_episode > 0) %>%
+    group_by(patientid, aki_episode) %>%
+    summarise(onset = min(datetime[new_aki]),
+              start_date = as.Date(min(datetime[new_aki])),
+              event_value = aki_stage[new_aki][1],
+              max_value = max(aki_stage[aki_def], na.rm = TRUE),
+              .groups = 'drop') %>%
+    transmute(patientid,
+              event_id = aki_episode,
+              start_date,
+              end_date = as.Date(NA),
+              duration_days = as.numeric(NA),
+              event_value = as.numeric(event_value),
+              max_value = as.numeric(ifelse(is.infinite(max_value), NA, max_value)),
+              event_type = 'ae_AKI') %>%
+    arrange(patientid, start_date)
+}
+
+#### Run ####
+# Loads the creatinine measurements of all patients in all_patients and builds the AKI measurements and events
+# once. The dalycare package must be loaded first. Nothing runs when this file is sourced.
+#   AKI = AE_AKI_all()
+#   AKI$events    the ae_AKI events for all_comorbidity_and_ae (one per episode)
+#   AKI$all_AKI   the table all_AKI: one row per creatinine measurement, like the old AKI table
+AE_AKI_all = function(){
+  load_npu_common()
+  load_dataset('all_patients')
+  load_dataset('all_laboratory_measurements', NPU.KREA, column = 'analysiscode')
+  creatinine = all_laboratory_measurements_subset %>%
+    filter(patientid %in% all_patients$patientid)
+  rm(all_laboratory_measurements_subset)
+  measurements = build_AE_AKI_measurements(creatinine)
+  list(events = build_AE_AKI(measurements),
+       all_AKI = format_all_AKI(measurements))
+}
+
+# Only the events (used when the measurements are not needed)
+AE_AKI = function() AE_AKI_all()$events

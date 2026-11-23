@@ -4,9 +4,9 @@
 # by summarize_AE_events() below).
 #
 # The grading is done by the AE_*() functions in functions/CTCAE/. build_AE_CTCAE() grades the laboratory
-# measurements and summarises the grades to events, run_AE_CTCAE() loads the data and calls it. Nothing runs when
+# measurements and summarises the grades to events, AE_CTCAE() loads the data and calls it. Nothing runs when
 # this file is sourced; use
-#   CTCAE = run_AE_CTCAE()
+#   CTCAE = AE_CTCAE()
 # The table is not saved here: writing to core/ is done by the core pipeline.
 #
 # Output has the shape of all_comorbidity_and_ae:
@@ -124,7 +124,7 @@ build_AE_CTCAE = function(lab, types = CTCAE_types){
 #### Run ####
 # Loads the laboratory measurements of the patients with a first malignant diagnosis (as the old script did)
 # and builds the CTCAE events. The dalycare package must be loaded first. Nothing runs when this file is sourced.
-run_AE_CTCAE = function(){
+AE_CTCAE = function(){
   load_npu_common()
   ids = view_definition_first_diagnosis_malignant()$patientid
   load_dataset('all_laboratory_measurements', ids)

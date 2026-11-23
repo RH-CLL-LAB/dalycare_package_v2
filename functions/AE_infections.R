@@ -4,9 +4,9 @@
 # (AB_AE_infections.R) was identical to definition 2 (IV_AB) and is not a separate event type anymore.
 #
 # The logic lives in build_AE_infection_5D(), which gets the data as arguments.
-# run_AE_infections() loads the data and calls it. Nothing runs when this file is
+# AE_infections() loads the data and calls it. Nothing runs when this file is
 # sourced; use
-#   infections = run_AE_infections()
+#   infections = AE_infections()
 # The table is not saved here: writing to core/ is done by the core pipeline.
 #
 # Output has the shape of all_comorbidity_and_ae:
@@ -204,7 +204,7 @@ build_AE_infection_5D = function(SP_AdministreretMedicin, SP_OrdineretMedicin, S
 #### Run ####
 # Loads the data for all patients in all_patients and builds the infection events (the 5
 # definitions). The dalycare package must be loaded first. Nothing runs when this file is sourced.
-run_AE_infections = function(){
+AE_infections = function(){
   load_dataset('all_patients')
   load_dataset('SP_AdministreretMedicin', all_patients$patientid)
   load_dataset('SP_OrdineretMedicin', all_patients$patientid)
